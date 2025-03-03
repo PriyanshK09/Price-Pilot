@@ -20,16 +20,42 @@
   margin-top: var(--spacing-lg);
   margin-bottom: var(--spacing-xl);
   z-index: 1;
+  overflow: hidden;
+  min-height: 450px;
+  transform: translate3d(0, 0, 0);
 }
 
 .deals-slider {
-  overflow: visible;
+  overflow: visible !important;
   padding-bottom: var(--spacing-lg);
   position: relative;
 }
 
+/* Add these specific styles to match the testimonials carousel behavior */
+
+/* Fix for smooth looping */
+.deals-slider .swiper-wrapper {
+  transition-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+/* Ensure proper slide rendering during transitions */
+.deals-slider .swiper-slide-duplicate {
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: flex !important;
+}
+
+/* Make sure slider is visible during transition */
+.deals-slider .swiper-slide-active,
+.deals-slider .swiper-slide-next,
+.deals-slider .swiper-slide-prev {
+  z-index: 2;
+}
+
 .deal-slide {
   height: auto;
+  will-change: transform;
+  transition: transform 0.7s ease, opacity 0.7s ease;
 }
 
 .deal-card {

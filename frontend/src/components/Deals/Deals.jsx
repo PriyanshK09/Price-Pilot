@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Star, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
@@ -79,6 +79,13 @@ function Deals() {
     }
   ];
 
+  // Add duplicate deals to ensure smooth looping
+  const extendedDeals = [
+    ...deals.slice(deals.length - 3),
+    ...deals,
+    ...deals.slice(0, 3)
+  ];
+
   // Function to render stars based on rating
   const renderStars = (rating) => {
     const stars = [];
@@ -98,6 +105,21 @@ function Deals() {
     return stars;
   };
 
+  // Setup effect for swiper initialization
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (swiperRef.current && swiperRef.current.swiper) {
+        const swiper = swiperRef.current.swiper;
+        swiper.update();
+        
+        // Set initial slide to start of actual deals (after the duplicates)
+        swiper.slideToLoop(0, 0);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <section className="deals section">
       <div className="container">
@@ -115,20 +137,34 @@ function Deals() {
             modules={[Navigation, Pagination, Autoplay]}
             spaceBetween={30}
             slidesPerView={1}
+            grabCursor={true}
+            speed={700}
+            loop={true}
+            watchSlidesProgress={true}
+            observer={true}
+            observeParents={true}
+            simulateTouch={true}
+            touchRatio={1}
+            preventClicks={false}
+            allowTouchMove={true}
             breakpoints={{
               640: {
-                slidesPerView: 2,
+                slidesPerView: 1,
                 spaceBetween: 20
               },
+              768: {
+                slidesPerView: 2,
+                spaceBetween: 30
+              },
               1024: {
-                slidesPerView: 3,
+                slidesPerView: 3, // Ensure exactly 3 cards on larger screens
                 spaceBetween: 30
               }
             }}
-            loop={true}
             autoplay={{
-              delay: 5000,
+              delay: 3000,
               disableOnInteraction: false,
+              pauseOnMouseEnter: true
             }}
             pagination={{
               clickable: true,
@@ -141,9 +177,18 @@ function Deals() {
               nextEl: '.deals-nav-btn.next',
             }}
             className="deals-slider"
+            onInit={(swiper) => {
+              if (!swiper) return;
+              
+              setTimeout(() => {
+                if (swiper && typeof swiper.update === 'function') {
+                  swiper.update();
+                }
+              }, 100);
+            }}
           >
-            {deals.map(deal => (
-              <SwiperSlide key={deal.id} className="deal-slide">
+            {extendedDeals.map((deal, index) => (
+              <SwiperSlide key={`${deal.id}-${index}`} className="deal-slide">
                 <div className="deal-card">
                   <div className="deal-discount">Save {deal.discount}%</div>
                   <div className="deal-image">
@@ -186,7 +231,6 @@ function Deals() {
         </div>
         
         <div className="deals-action">
-          {/* Fix: Changed anchor tag with empty href to button to resolve ESLint warning */}
           <button className="btn btn-secondary">
             View All Deals
             <ArrowRight className="btn-icon" size={16} />
