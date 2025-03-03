@@ -1,0 +1,277 @@
+.process {
+  background-color: var(--color-background);
+  position: relative;
+  overflow: hidden;
+  padding: var(--spacing-xl) 0;
+}
+
+.process::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at bottom left, rgba(105, 117, 101, 0.1), transparent 60%);
+  z-index: 0;
+}
+
+/* Center the badge */
+.badge-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.process-steps {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--spacing-xl);
+  position: relative;
+  z-index: 1;
+}
+
+.process-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  flex: 1;
+  padding: 0 var(--spacing-md);
+  transition: all var(--transition-speed) ease;
+  transform-origin: center;
+}
+
+.process-step-number {
+  width: 36px;
+  height: 36px;
+  background-color: var(--color-surface-light);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  font-weight: 700;
+  font-family: var(--font-display);
+  color: var(--color-text);
+  border: 2px solid var(--color-border);
+  transition: all var(--transition-speed) ease;
+}
+
+.process-step.active .process-step-number {
+  background-color: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 20px rgba(105, 117, 101, 0.4);
+}
+
+.process-step-icon {
+  width: 90px;
+  height: 90px;
+  background-color: var(--color-surface);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--spacing-md);
+  position: relative;
+  z-index: 2;
+  transition: all var(--transition-speed) ease;
+  border: 2px solid var(--color-border);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.process-step-icon::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, rgba(105, 117, 101, 0.2), transparent 70%);
+  opacity: 0;
+  transition: opacity var(--transition-speed) ease;
+}
+
+.process-step.active .process-step-icon {
+  transform: scale(1.05);
+  border-color: var(--color-primary);
+  box-shadow: 0 15px 30px rgba(105, 117, 101, 0.3);
+}
+
+.process-step.active .process-step-icon::before {
+  opacity: 1;
+}
+
+.process-step-icon svg {
+  width: 36px;
+  height: 36px;
+  color: var(--color-primary);
+  transition: all var(--transition-speed) ease;
+}
+
+.process-step.active .process-step-icon svg {
+  transform: scale(1.1);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.process-step-title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: var(--spacing-sm);
+  transition: all var(--transition-speed) ease;
+}
+
+.process-step.active .process-step-title {
+  color: var(--color-primary);
+}
+
+.process-step-description {
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.process-step-connector {
+  position: absolute;
+  top: 45px;
+  right: -30px;
+  z-index: 1;
+  transition: all var(--transition-speed) ease;
+}
+
+.process-step-connector svg {
+  width: 60px;
+  height: 20px;
+  color: var(--color-primary);
+  opacity: 0.4;
+  transition: all var(--transition-speed) ease;
+}
+
+.process-step.active .process-step-connector svg {
+  opacity: 1;
+  animation: arrow-pulse 2s infinite;
+}
+
+@keyframes arrow-pulse {
+  0% {
+    transform: translateX(0);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translateX(5px);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 0.4;
+  }
+}
+
+/* Enhanced glow effect */
+.process::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 10%;
+  width: 30%;
+  height: 40%;
+  background: radial-gradient(ellipse at center, rgba(105, 117, 101, 0.15), transparent 70%);
+  filter: blur(50px);
+  z-index: 0;
+  pointer-events: none;
+}
+
+@media (max-width: 992px) {
+  .process-steps {
+    flex-direction: column;
+    gap: var(--spacing-xl);
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .process-step {
+    width: 100%;
+  }
+  
+  .process-step-connector {
+    top: auto;
+    right: auto;
+    bottom: -60px;
+    left: 50%;
+    transform: translateX(-50%) rotate(90deg);
+  }
+  
+  .process-step-connector svg {
+    width: 20px;
+    height: 60px;
+    transform: rotate(90deg);
+  }
+  
+  .process-step.active .process-step-connector svg {
+    animation: arrow-pulse-vertical 2s infinite;
+  }
+  
+  @keyframes arrow-pulse-vertical {
+    0% {
+      transform: rotate(90deg) translateX(0);
+      opacity: 0.4;
+    }
+    50% {
+      transform: rotate(90deg) translateX(5px);
+      opacity: 1;
+    }
+    100% {
+      transform: rotate(90deg) translateX(0);
+      opacity: 0.4;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .process-step-icon {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .process-step-icon svg {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+@media (max-width: 480px) {
+  .process-step-icon {
+    width: 70px;
+    height: 70px;
+  }
+  
+  .process-step-icon svg {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .process-step-title {
+    font-size: 1.1rem;
+  }
+}

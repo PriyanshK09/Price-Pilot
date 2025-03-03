@@ -1,0 +1,385 @@
+.testimonials {
+  background-color: var(--color-background);
+  position: relative;
+  overflow: hidden;
+  padding: var(--spacing-xl) 0;
+  will-change: transform;
+}
+
+.testimonials::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at top left, rgba(105, 117, 101, 0.1), transparent 70%);
+  z-index: 0;
+}
+
+.testimonial-bg-glow {
+  position: absolute;
+  width: 80%;
+  height: 60%;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at center, rgba(105, 117, 101, 0.08), transparent 70%);
+  filter: blur(80px);
+  opacity: 0.8;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.testimonials-container {
+  position: relative;
+  margin-top: var(--spacing-lg);
+  width: 100%;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: var(--spacing-lg) 0;
+  z-index: 1;
+  overflow: hidden;
+  min-height: 450px; /* Ensure container has enough height */
+  transform: translate3d(0, 0, 0);
+}
+
+/* Remove the old navigation container */
+.testimonials-navigation {
+  display: none;
+}
+
+.testimonial-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60%;
+  height: 300px;
+  background: radial-gradient(ellipse at center, rgba(105, 117, 101, 0.2) 0%, transparent 70%);
+  filter: blur(40px);
+  z-index: -1;
+}
+
+/* Testimonials Slider - differentiate from deals-slider */
+.testimonials-slider {
+  width: 100%;
+  overflow: visible !important;
+  padding: 10px 0 30px; /* Remove left/right padding that was for buttons */
+  position: relative;
+  margin: 0;
+  transform: translate3d(0, 0, 0);
+}
+
+.testimonials-slider .swiper-wrapper {
+  display: flex;
+  align-items: stretch;
+  transition-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+  transform-style: preserve-3d;
+  transition-property: transform;
+}
+
+/* Add these specific fixes to ensure smooth looping transitions */
+
+/* Fix for smooth looping */
+.testimonials-slider .swiper-wrapper {
+  transition-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+/* Ensure proper slide rendering during transitions */
+.testimonials-slider .swiper-slide-duplicate {
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.testimonials-slider .swiper-slide {
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  transform: translate3d(0, 0, 0) !important;
+  transition: transform 0.7s ease, opacity 0.7s ease;
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+.testimonials-slider .swiper-slide-visible {
+  opacity: 1 !important;
+  visibility: visible !important;
+  z-index: 1;
+}
+
+.testimonial-slide {
+  height: auto;
+  display: flex;
+  opacity: 1 !important;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  will-change: transform;
+  transition: transform 0.7s ease, opacity 0.7s ease;
+}
+
+.testimonial-slide .swiper-slide-duplicate {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: flex !important;
+}
+
+.testimonial-card {
+  background-color: rgba(30, 30, 30, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: var(--spacing-xl);
+  border-radius: var(--border-radius-lg);
+  position: relative;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 320px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.testimonial-card:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+  transform: translateY(-5px);
+}
+
+.testimonial-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at bottom right, rgba(105, 117, 101, 0.15), transparent 70%);
+  opacity: 0;
+  transition: opacity var(--transition-speed) ease;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.testimonial-card:hover::before {
+  opacity: 1;
+}
+
+.testimonial-quote {
+  position: absolute;
+  top: var(--spacing-md);
+  right: var(--spacing-md);
+  opacity: 0.2;
+  transition: all var(--transition-speed) ease;
+}
+
+.testimonial-card:hover .testimonial-quote {
+  opacity: 0.4;
+  transform: translateY(-3px);
+}
+
+.quote-icon {
+  color: var(--color-primary);
+}
+
+.testimonial-content {
+  font-size: 1.15rem;
+  line-height: 1.7;
+  margin-bottom: var(--spacing-md);
+  position: relative;
+  z-index: 1;
+  font-weight: 300;
+  color: var(--color-text);
+  font-style: italic;
+  font-family: var(--font-secondary);
+}
+
+.testimonial-rating {
+  display: flex;
+  gap: 4px;
+  margin-bottom: var(--spacing-md);
+  position: relative;
+  z-index: 1;
+}
+
+/* Let the deals-slider have its own star styles */
+.testimonial-rating .star-filled {
+  color: #ffc107;
+}
+
+.testimonial-rating .star-empty {
+  color: var(--color-text-secondary);
+}
+
+.testimonial-user {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-top: auto;
+  position: relative;
+  z-index: 1;
+}
+
+.testimonial-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--color-primary);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+.testimonial-avatar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at bottom right, rgba(105, 117, 101, 0.3), transparent 70%);
+  opacity: 0;
+  transition: opacity var(--transition-speed) ease;
+}
+
+.testimonial-card:hover .testimonial-avatar::after {
+  opacity: 1;
+}
+
+.testimonial-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-speed) ease;
+}
+
+.testimonial-card:hover .testimonial-avatar img {
+  transform: scale(1.05);
+}
+
+.testimonial-name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 4px;
+  color: var(--color-text);
+}
+
+.testimonial-role {
+  color: var(--color-primary);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* Remove the navigation buttons */
+.testimonial-nav-btn {
+  display: none;
+}
+
+.testimonial-nav-btn.swiper-button-disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Make the buttons appear above slides */
+.testimonial-nav-btn {
+  z-index: 20;
+}
+
+.testimonials-slider .swiper-slide-active,
+.testimonials-slider .swiper-slide-next,
+.testimonials-slider .swiper-slide-prev {
+  z-index: 10;
+}
+
+.testimonials-slider.swiper-rtl .swiper-slide {
+  transform: translate3d(0, 0, 0) !important;
+}
+
+@media (max-width: 1280px) {
+  .testimonials-container {
+    max-width: 1000px;
+  }
+}
+
+@media (max-width: 768px) {
+  .testimonial-card {
+    padding: var(--spacing-lg);
+    min-height: 280px;
+  }
+  
+  .testimonial-content {
+    font-size: 1rem;
+  }
+  
+  .testimonial-avatar {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .testimonials-container {
+    padding: var(--spacing-md) var(--spacing-sm);
+  }
+  
+  .testimonial-nav-btn {
+    width: 40px;
+    height: 40px;
+  }
+  
+  /* Remove any remaining button-related positioning in media queries */
+  .testimonials-slider {
+    padding: 10px 0 30px;
+  }
+}
+
+@media (max-width: 640px) {
+  .testimonial-card {
+    padding: var(--spacing-md);
+    min-height: 260px;
+  }
+  
+  .testimonial-quote {
+    top: var(--spacing-sm);
+    right: var(--spacing-sm);
+  }
+  
+  .testimonial-quote svg {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .testimonials-navigation {
+    gap: var(--spacing-md);
+  }
+  
+  .testimonial-content {
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+  
+  .testimonial-nav-btn {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .testimonial-nav-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .testimonial-nav-btn.prev {
+    left: 0;
+  }
+  
+  .testimonial-nav-btn.next {
+    right: 0;
+  }
+  
+  /* Add more padding to the slider to accommodate the buttons */
+  .testimonials-slider {
+    padding: 10px 0 30px;
+  }
+}
