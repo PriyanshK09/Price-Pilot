@@ -2,6 +2,14 @@
   background-color: var(--color-background);
   position: relative;
   overflow: hidden;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.deals.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .deals::before {
@@ -15,47 +23,144 @@
   z-index: 0;
 }
 
-.deals-carousel-container {
+.light-theme .deals::before {
+  background: radial-gradient(circle at bottom left, rgba(105, 117, 101, 0.05), transparent 60%);
+}
+
+.deals-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-lg);
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
   position: relative;
-  margin-top: var(--spacing-lg);
-  margin-bottom: var(--spacing-xl);
   z-index: 1;
-  overflow: hidden;
-  min-height: 450px;
-  transform: translate3d(0, 0, 0);
 }
 
-.deals-slider {
-  overflow: visible !important;
-  padding-bottom: var(--spacing-lg);
+.deals-header-text {
+  text-align: left;
+  max-width: 600px;
+}
+
+.deals-header-text .badge {
+  display: inline-block;
+  margin-bottom: var(--spacing-sm);
+}
+
+.deals-header-text .section-title,
+.deals-header-text .section-subtitle {
+  text-align: left;
+  margin-left: 0;
+}
+
+/* Improved spacing and centering for tabs */
+.deals-tabs {
+  display: flex;
+  background-color: var(--color-surface);
+  border-radius: 30px;
+  padding: 5px;
+  border: 1px solid var(--color-border);
   position: relative;
+  overflow: hidden;
 }
 
-/* Add these specific styles to match the testimonials carousel behavior */
-
-/* Fix for smooth looping */
-.deals-slider .swiper-wrapper {
-  transition-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+.light-theme .deals-tabs {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-/* Ensure proper slide rendering during transitions */
-.deals-slider .swiper-slide-duplicate {
-  visibility: visible !important;
-  opacity: 1 !important;
-  display: flex !important;
-}
-
-/* Make sure slider is visible during transition */
-.deals-slider .swiper-slide-active,
-.deals-slider .swiper-slide-next,
-.deals-slider .swiper-slide-prev {
+.deals-tab {
+  background: none;
+  border: none;
+  padding: 10px 25px;
+  margin: 0 5px; /* Increased margin between tabs from 2px to 5px */
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  transition: all var(--transition-speed) ease;
+  position: relative;
   z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 120px; /* Increased minimum width from 110px to 120px */
 }
 
-.deal-slide {
-  height: auto;
-  will-change: transform;
-  transition: transform 0.7s ease, opacity 0.7s ease;
+/* Remove the previous active tab styling and ::after elements */
+.deals-tab::after {
+  display: none;
+}
+
+/* Fix the fluid background for tabs */
+.deals-tabs::before {
+  content: '';
+  position: absolute;
+  top: 5px;
+  height: calc(100% - 10px);
+  background-color: var(--color-primary);
+  border-radius: 25px;
+  transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  z-index: 1;
+}
+
+/* Position the fluid background based on active tab */
+.deals-tabs:has(.deals-tab:nth-child(1).active)::before {
+  left: 5px;
+  width: calc(100% / 3 - 10px);
+}
+
+.deals-tabs:has(.deals-tab:nth-child(2).active)::before {
+  left: calc(100% / 3 + 2.5px);
+  width: calc(100% / 3 - 10px);
+}
+
+.deals-tabs:has(.deals-tab:nth-child(3).active)::before {
+  left: calc(2 * 100% / 3);
+  width: calc(100% / 3 - 10px);
+}
+
+/* For browsers that don't support :has, add these classes dynamically */
+.deals-tabs.tab-1-active::before {
+  left: 10px; /* Increased spacing from 7px to 10px */
+  width: calc(100% / 3 - 24px); /* Reduced width to prevent overlap */
+}
+
+.deals-tabs.tab-2-active::before {
+  left: calc(100% / 3 + 5px); /* Adjusted positioning */
+  width: calc(100% / 3 - 24px); /* Reduced width to prevent overlap */
+}
+
+.deals-tabs.tab-3-active::before {
+  left: calc(2 * 100% / 3 + 2px); /* Adjusted positioning */
+  width: calc(100% / 3 - 24px); /* Reduced width to prevent overlap */
+}
+
+/* Style text for active tab without background */
+.deals-tab.active {
+  color: white;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.deals-tab:hover:not(.active) {
+  color: var(--color-text);
+  background-color: var(--color-surface-light);
+}
+
+.light-theme .deals-tab:hover:not(.active) {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.deals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  position: relative;
+  z-index: 1;
+  transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
 .deal-card {
@@ -66,75 +171,131 @@
   transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
   border: 1px solid var(--color-border);
   height: 100%;
+  display: flex;
+  flex-direction: column;
+  animation: fadeIn 0.4s ease forwards;
+  opacity: 0;
 }
 
+.deal-card:nth-child(1) { animation-delay: 0.05s; }
+.deal-card:nth-child(2) { animation-delay: 0.1s; }
+.deal-card:nth-child(3) { animation-delay: 0.15s; }
+.deal-card:nth-child(4) { animation-delay: 0.2s; }
+
 .deal-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-  border-color: rgba(105, 117, 101, 0.3);
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-md);
+}
+
+.light-theme .deal-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.light-theme .deal-card:hover {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.deal-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-sm);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
 }
 
 .deal-discount {
-  position: absolute;
-  top: 12px;
-  left: 12px;
   background-color: var(--color-primary);
   color: white;
   padding: 6px 10px;
   border-radius: 6px;
   font-size: 0.8rem;
   font-weight: 600;
-  z-index: 1;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
-.deal-image {
-  width: 100%;
-  height: 220px;
-  background-color: var(--color-surface-light);
+.deal-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.deal-action-btn {
+  background: none;
+  border: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-sm);
-  position: relative;
-  overflow: hidden;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  transition: all var(--transition-speed) ease;
+  background-color: rgba(255, 255, 255, 0.05);
 }
 
-.deal-image::before {
+.light-theme .deal-action-btn {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.deal-action-btn:hover {
+  color: var(--color-primary);
+  background-color: rgba(105, 117, 101, 0.15);
+  transform: translateY(-2px);
+}
+
+.deal-image-container {
+  height: 180px;
+  padding: 0 var(--spacing-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: var(--spacing-lg);
+}
+
+.deal-image-placeholder {
+  width: 100%;
+  height: 100%;
+  background-color: var(--color-surface-light);
+  border-radius: var(--border-radius);
+  position: relative;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.deal-image-placeholder::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle at center, rgba(105, 117, 101, 0.1), transparent 70%);
-  opacity: 0;
-  transition: opacity var(--transition-speed) ease;
-}
-
-.deal-card:hover .deal-image::before {
-  opacity: 1;
-}
-
-.deal-image img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-  transition: transform var(--transition-speed) ease;
-}
-
-.deal-card:hover .deal-image img {
-  transform: scale(1.05);
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0) 50%);
 }
 
 .deal-content {
   padding: var(--spacing-md);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.deal-store {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .deal-title {
   font-size: 1rem;
   font-weight: 600;
-  margin-bottom: var(--spacing-sm);
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -142,144 +303,453 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   height: 2.8em;
-}
-
-.deal-price {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-sm);
-}
-
-.current-price {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--color-text);
-  font-family: var(--font-secondary);
-}
-
-.original-price {
-  font-size: 1rem;
-  color: var(--color-text-secondary);
-  text-decoration: line-through;
+  margin-bottom: var(--spacing-xs);
 }
 
 .deal-rating {
   display: flex;
   align-items: center;
+  gap: 5px;
+  margin-bottom: 5px;
+}
+
+.deal-stars {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #ffd700;
+}
+
+.deal-reviews {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
+
+.deal-price {
+  display: flex;
+  align-items: baseline;
   gap: var(--spacing-xs);
-  margin-bottom: var(--spacing-sm);
+  margin-top: auto;
 }
 
-.stars {
-  display: flex;
+.deal-current-price {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--color-primary);
 }
 
-.star-filled {
-  color: #ffc107;
-}
-
-.star-half {
-  position: relative;
-  color: #ffc107;
-  clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
-}
-
-.star-empty {
-  color: var(--color-text-secondary);
-}
-
-.reviews {
-  font-size: 0.8rem;
-  color: var(--color-text-secondary);
-}
-
-.deal-stores {
-  font-size: 0.8rem;
-  color: var(--color-text-secondary);
-  margin-bottom: var(--spacing-md);
-}
-
-.deal-btn {
-  width: 100%;
-  padding: 12px;
-  border-radius: 8px;
+.deal-original-price {
   font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  text-decoration: line-through;
 }
 
-.deals-action {
+.deal-saved {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  margin-top: 5px;
+}
+
+.deal-saved-amount {
+  color: #2ecc71; /* Changed to a nice green color */
+  font-weight: 500;
+}
+
+.deal-expires {
   display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  margin-top: 8px;
+}
+
+.deal-timer {
+  background-color: var(--color-surface-light);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: var(--font-secondary);
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.light-theme .deal-timer {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.deal-cta {
+  margin-top: auto;
+  background-color: var(--color-surface-light);
+  color: var(--color-text);
+  border: none;
+  padding: var(--spacing-sm);
+  cursor: pointer;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
   justify-content: center;
-  margin-top: var(--spacing-lg);
-  position: relative;
-  z-index: 1;
+  gap: 8px;
+  transition: all var(--transition-speed) ease;
+}
+
+.light-theme .deal-cta {
+  background-color: var(--color-surface-light);
+}
+
+.deal-cta:hover {
+  background-color: var(--color-primary);
+  color: white;
 }
 
 /* Navigation and pagination styles */
 .deals-navigation {
   display: flex;
-  align-items: center;
   justify-content: center;
-  margin-top: var(--spacing-md);
+  align-items: center;
   gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  position: relative;
+  z-index: 5; /* Increase z-index to ensure it's above other elements */
 }
 
 .deals-nav-btn {
-  background-color: var(--color-surface);
+  background: none;
   border: 1px solid var(--color-border);
-  color: var(--color-text);
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all var(--transition-speed) ease;
+  color: var(--color-text);
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 10; /* Higher z-index than parent */
+  cursor: pointer !important;
+  pointer-events: auto !important;
+}
+
+.deals-nav-btn:hover:not(.disabled) {
+  background-color: var(--color-surface-light);
+  transform: translateY(-2px);
+}
+
+.light-theme .deals-nav-btn:hover:not(.disabled) {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Add fluid pagination highlight effect */
+.deals-pagination {
+  display: flex;
+  gap: var(--spacing-xs);
+  align-items: center;
+  position: relative;
+  z-index: 10;
+  height: 40px; /* Fixed height to ensure consistent positioning */
+}
+
+/* Create a flowing highlight for pagination */
+.deals-pagination {
+  position: relative;
+}
+
+.deals-pagination::before {
+  content: '';
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--color-primary);
+  z-index: 1;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  opacity: 0.9;
+  top: 50%;
+  transform: translateY(-50%); /* Center vertically first */
+}
+
+/* Position the highlight based on active page */
+.deals-pagination .deals-page.active {
+  background-color: transparent;
+  color: white;
+  position: relative;
+  z-index: 2;
+}
+
+/* Style for active page number with proper z-index */
+.deals-pagination .deals-page {
+  position: relative;
+  z-index: 2;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+/* Refine the position calculations for the pagination highlight */
+.deals-pagination[data-active="1"]::before {
+  left: 4px; /* Adjust position to match the first page button */
+}
+
+.deals-pagination[data-active="2"]::before {
+  left: calc(45px + var(--spacing-xs));
+}
+
+.deals-pagination[data-active="3"]::before {
+  left: calc(85px + 2 * var(--spacing-xs));
+}
+
+.deals-pagination[data-active="4"]::before {
+  left: calc(125px + 3 * var(--spacing-xs));
+}
+
+.deals-pagination[data-active="5"]::before {
+  left: calc(165px + 4 * var(--spacing-xs));
+}
+
+.deals-page {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Center text horizontally */
+  border-radius: 50%;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  user-select: none;
+  position: relative;
   z-index: 10;
 }
 
-.deals-nav-btn:hover {
-  background-color: var(--color-primary);
+/* Make sure the focus outline matches the position */
+.deals-page:not(.ellipsis):focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Fix active page styling to remove background color */
+.deals-page.active {
+  background-color: transparent;
   color: white;
+  font-weight: 600;
+  transform: scale(1.05);
+}
+
+/* Remove the ripple effect for active tab as it conflicts with the fluid background */
+.deals-tab:active::before {
+  animation: none;
+}
+
+/* Ensure nav buttons align with pagination height */
+.deals-nav-btn {
+  width: 40px;
+  height: 40px;
+}
+
+.deals-page:not(.active):not(.ellipsis):hover {
+  background-color: var(--color-surface-light);
   transform: translateY(-2px);
-  border-color: var(--color-primary);
-  box-shadow: 0 5px 15px rgba(105, 117, 101, 0.3);
+}
+
+.light-theme .deals-page:not(.active):not(.ellipsis):hover {
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 /* Disabled state for navigation buttons */
-.deals-nav-btn.swiper-button-disabled {
-  opacity: 0.4;
+.deals-nav-btn.disabled {
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
-.deals-pagination {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  justify-content: center;
+.deals-nav-btn:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
-.deal-indicator {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background-color: var(--color-border);
-  border: none;
-  cursor: pointer;
-  transition: all var(--transition-speed) ease;
-  padding: 0;
-  margin: 0 4px;
+.deals-nav-btn:not(:disabled):hover {
+  background-color: var(--color-surface-light);
+  transform: translateY(-2px);
 }
 
-.deal-indicator.active {
-  background-color: var(--color-primary);
-  transform: scale(1.2);
+.deals-nav-btn:not(:disabled):active {
+  transform: scale(0.95);
 }
 
-/* Responsive styles */
+.deals-nav-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed !important;
+  pointer-events: none; /* Completely disable interactions */
+}
+
+@media (max-width: 992px) {
+  .deals-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .deals-header-text {
+    max-width: 100%;
+  }
+  
+  .deals-tabs {
+    width: 100%;
+  }
+}
+
 @media (max-width: 768px) {
-  .deals-navigation {
-    gap: var(--spacing-sm);
+  .deals-tabs {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .deals-tab {
+    flex: 1;
+    text-align: center;
+    padding: 10px 15px;
+    font-size: 0.85rem;
+  }
+  
+  .deals-header-text .section-title,
+  .deals-header-text .section-subtitle {
+    text-align: center;
+  }
+  
+  .deals-header-text .badge {
+    display: block;
+    margin: 0 auto var(--spacing-sm);
+    width: fit-content;
+  }
+}
+
+@media (max-width: 600px) {
+  .deals-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .deals-pagination {
+    gap: 5px;
+  }
+  
+  .deals-page {
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
+  }
+}
+
+/* Add these specific styles to fix the clickability issues */
+.deals-nav-btn, 
+.deals-page:not(.ellipsis) {
+  min-width: 40px;
+  min-height: 40px;
+}
+
+/* Add better focus and active states for better feedback */
+.deals-nav-btn:active,
+.deals-page:not(.ellipsis):active {
+  transform: scale(0.95);
+}
+
+/* Add sliding animation for page and tab switching */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Apply animations to cards when they appear */
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+/* Apply a nice subtle ripple effect when changing tabs/pages */
+@keyframes ripple {
+  0% {
+    transform: scale(0.8);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+.deals-tab::before,
+.deals-page:not(.ellipsis)::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, var(--color-primary-light) 0%, transparent 70%);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  z-index: -1;
+}
+
+.deals-tab:active::before,
+.deals-page:not(.ellipsis):active::before {
+  animation: ripple 0.6s ease-out;
+}
+
+/* Add transition for content when switching tabs */
+.deals-grid {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+/* CSS animation classes to be applied when changing tabs/pages */
+.slide-in-right {
+  animation: slideInRight 0.5s forwards;
+}
+
+.slide-in-left {
+  animation: slideInLeft 0.5s forwards;
+}
+
+.slide-out-left {
+  animation: slideOutLeft 0.5s forwards;
+}
+
+.slide-out-right {
+  animation: slideOutRight 0.5s forwards;
+}
+
+@keyframes slideOutLeft {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-30px);
+    opacity: 0;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(30px);
+    opacity: 0;
   }
 }

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Header from './components/Header/Header';
 import Hero from './components/Hero/Hero';
 import Deals from './components/Deals/Deals';
@@ -12,10 +12,38 @@ import CursorGlow from './components/CursorGlow/CursorGlow';
 import './App.css';
 
 function App() {
+  const [theme, setTheme] = useState('dark');
+  
+  useEffect(() => {
+    // Check for saved theme preference or use system preference
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      setTheme(savedTheme);
+    } else {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setTheme(prefersDark ? 'dark' : 'light');
+    }
+  }, []);
+  
+  useEffect(() => {
+    // Apply theme class to document body
+    if (theme === 'light') {
+      document.body.classList.add('light-theme');
+    } else {
+      document.body.classList.remove('light-theme');
+    }
+    // Save theme preference
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+  
+  const toggleTheme = () => {
+    setTheme(currentTheme => currentTheme === 'dark' ? 'light' : 'dark');
+  };
+
   return (
     <div className="app">
       <CursorGlow />
-      <Header />
+      <Header theme={theme} toggleTheme={toggleTheme} />
       <main>
         <Hero />
         <Deals />
