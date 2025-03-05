@@ -534,6 +534,30 @@
   transform: scale(1.05);
 }
 
+/* Remove the ripple effect */
+.deals-tab::before,
+.deals-page:not(.ellipsis)::before {
+  display: none; /* Remove the ripple animation */
+}
+
+/* Add a clean active state without the ripple */
+.deals-tab:active,
+.deals-page:not(.ellipsis):active {
+  transform: scale(0.97);
+}
+
+/* Remove existing animation for ripples */
+@keyframes ripple {
+  0% {
+    transform: scale(0.8);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
 /* Remove the ripple effect for active tab as it conflicts with the fluid background */
 .deals-tab:active::before {
   animation: none;
@@ -689,25 +713,6 @@
     transform: scale(1.5);
     opacity: 0;
   }
-}
-
-.deals-tab::before,
-.deals-page:not(.ellipsis)::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle, var(--color-primary-light) 0%, transparent 70%);
-  border-radius: 50%;
-  transform: translate(-50%, -50%) scale(0);
-  z-index: -1;
-}
-
-.deals-tab:active::before,
-.deals-page:not(.ellipsis):active::before {
-  animation: ripple 0.6s ease-out;
 }
 
 /* Add transition for content when switching tabs */
