@@ -465,7 +465,7 @@
 
 .hero-price-tag {
   top: 40%;
-  left: -50px;
+  left: 5px;
   animation-delay: 0.5s;
 }
 
@@ -621,41 +621,205 @@
 
 @media (max-width: 768px) {
   .hero {
-    padding: calc(var(--spacing-xl) + 60px) 0 var(--spacing-xl);
+    padding: calc(var(--spacing-xl) + 60px) 0 var(--spacing-lg);
+    min-height: auto;
+    height: auto;
+    overflow: visible;
+  }
+  
+  .hero-container {
+    flex-direction: column;
+    text-align: center;
+    padding-bottom: 0;
+  }
+  
+  /* Hide the image completely on mobile */
+  .hero-image {
+    display: none;
+  }
+  
+  /* Hide floating elements on mobile */
+  .hero-floating-elements {
+    display: none;
+  }
+  
+  /* Center content and make it full width */
+  .hero-content {
+    max-width: 100%;
+    position: relative;
+    z-index: 2;
+    padding: 0;
+    background: none;
+  }
+  
+  /* Improve the hero content spacing */
+  .hero-badges {
+    justify-content: center;
   }
   
   .hero-title {
-    font-size: 2.5rem;
+    font-size: 2.2rem;
+    margin-bottom: var(--spacing-sm);
+  }
+  
+  .hero-title-highlight::after {
+    height: 6px;
+    bottom: 3px;
   }
   
   .hero-description {
-    font-size: 1rem;
+    font-size: 0.95rem;
+    margin-bottom: var(--spacing-md);
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
   }
   
   .hero-actions {
     flex-direction: column;
     gap: var(--spacing-sm);
     align-items: center;
+    margin-bottom: var(--spacing-md);
   }
   
   .hero-actions .btn {
     width: 100%;
-    max-width: 300px;
+    max-width: 250px;
   }
   
+  /* Make stats look better */
   .hero-stats {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-sm);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    width: 100%;
+    gap: var(--spacing-md);
+    padding-top: var(--spacing-md);
+    max-width: 500px;
+    margin: 0 auto;
   }
   
   .hero-stat {
-    flex-direction: row;
-    align-items: baseline;
-    gap: var(--spacing-xs);
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .hero-stat-value {
+    font-size: 1.5rem;
+  }
+  
+  .hero-stat-label {
+    font-size: 0.75rem;
+  }
+  
+  /* Remove the background content effect */
+  .hero-content::after {
+    display: none;
+  }
+}
+
+/* Refined styles for tablet screens (768px to 1100px) */
+@media (min-width: 769px) and (max-width: 1100px) {
+  .hero-container {
+    flex-direction: column;
+    text-align: center;
+    padding-bottom: 0;
+  }
+  
+  .hero-content {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  
+  .hero-badges {
     justify-content: center;
   }
   
-  .hero-float-element {
+  .hero-actions {
+    justify-content: center;
+  }
+  
+  .hero-stats {
+    max-width: 700px;
+    margin: 0 auto;
+    margin-bottom: var(--spacing-lg);
+  }
+  
+  /* Hide the image and floating elements on tablets too */
+  .hero-image {
     display: none;
+  }
+  
+  .hero-floating-elements {
+    display: none;
+  }
+}
+
+/* Extra small devices adjustments */
+@media (max-width: 576px) {
+  .hero {
+    padding-top: calc(var(--spacing-xl) + 40px);
+    padding-bottom: var(--spacing-lg);
+  }
+  
+  .hero-title {
+    font-size: 2rem;
+  }
+  
+  .hero-stat-value {
+    font-size: 1.3rem;
+  }
+  
+  .hero-stat-label {
+    font-size: 0.7rem;
+  }
+}
+
+/* Further adjustments for extremely small screens */
+@media (max-width: 380px) {
+  .hero-title {
+    font-size: 1.8rem;
+  }
+  
+  .hero-description {
+    font-size: 0.9rem;
+  }
+  
+  .hero-stats {
+    gap: var(--spacing-sm);
+  }
+  
+  .hero-stat-value {
+    font-size: 1.2rem;
+  }
+}
+
+/* Restore proper min-width for larger screens */
+@media (min-width: 1101px) {
+  .hero-image {
+    display: flex;
+    opacity: 1;
+  }
+  
+  .hero-floating-elements {
+    display: block;
+  }
+  
+  /* Reset the original positioning */
+  .hero-container {
+    flex-direction: row;
+    text-align: left;
+  }
+  
+  .hero-badges {
+    justify-content: flex-start;
+  }
+  
+  .hero-actions {
+    justify-content: flex-start;
+  }
+  
+  .hero-content {
+    max-width: 600px;
   }
 }
