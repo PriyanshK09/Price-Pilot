@@ -1,125 +1,293 @@
 .features {
-    background: linear-gradient(135deg, #1e2a23 0%, #121212 100%);
-    color: var(--color-text);
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .features::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle at top right, rgba(105, 117, 101, 0.2), transparent 60%);
-    z-index: 0;
-  }
-  
+  background: var(--color-background);
+  color: var(--color-text);
+  position: relative;
+  overflow: hidden;
+  padding: var(--spacing-xl) 0;
+}
+
+/* Updated background effects */
+.features::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at top right, rgba(105, 117, 101, 0.12), transparent 70%);
+  z-index: 0;
+}
+
+.light-theme .features::before {
+  background: radial-gradient(circle at top right, rgba(105, 117, 101, 0.08), transparent 70%);
+}
+
+/* Add a subtle pattern overlay */
+.features-pattern {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(105, 117, 101, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(105, 117, 101, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  opacity: 0.4;
+  z-index: 0;
+}
+
+.light-theme .features-pattern {
+  opacity: 0.2;
+}
+
+.features-content {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-xl);
+  align-items: center;
+}
+
+.features-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.features-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: var(--spacing-md);
+  line-height: 1.2;
+  position: relative;
+  z-index: 1;
+  background: linear-gradient(90deg, var(--color-text), var(--color-primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+.features-subtitle {
+  color: var(--color-text-secondary);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: var(--spacing-lg);
+  max-width: 90%;
+}
+
+.features-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+/* Updated card design with consistent sizing */
+.feature-card {
+  display: flex;
+  gap: var(--spacing-md);
+  background-color: var(--color-surface);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  transition: all var(--transition-speed) ease;
+  border: 1px solid var(--color-border);
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+}
+
+/* Add card hover effects */
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+  border-color: var(--color-primary);
+  z-index: 2;
+}
+
+.light-theme .feature-card:hover {
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* Add a glow on hover */
+.feature-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at bottom right, rgba(105, 117, 101, 0.15), transparent 70%);
+  opacity: 0;
+  transition: opacity var(--transition-speed) ease;
+  pointer-events: none;
+}
+
+.feature-card:hover::after {
+  opacity: 1;
+}
+
+.light-theme .feature-card::after {
+  background: radial-gradient(circle at bottom right, rgba(105, 117, 101, 0.1), transparent 70%);
+}
+
+/* Updated icon styling */
+.feature-icon {
+  width: 60px;
+  height: 60px;
+  min-width: 60px;
+  background-color: var(--color-primary);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all var(--transition-speed) ease;
+  box-shadow: 0 8px 16px rgba(105, 117, 101, 0.2);
+}
+
+.light-theme .feature-icon {
+  box-shadow: 0 8px 16px rgba(105, 117, 101, 0.15);
+}
+
+.feature-card:hover .feature-icon {
+  transform: scale(1.05);
+}
+
+.feature-icon::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  transform: scale(0.85);
+  opacity: 0;
+  transition: all var(--transition-speed) ease;
+}
+
+.feature-card:hover .feature-icon::before {
+  transform: scale(1.15);
+  opacity: 0.6;
+}
+
+.feature-icon svg {
+  width: 28px;
+  height: 28px;
+  color: white;
+}
+
+.feature-content {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Updated text styling */
+.feature-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: var(--spacing-xs);
+  color: var(--color-text);
+  font-family: var(--font-display);
+}
+
+.light-theme .feature-title {
+  color: var(--color-text-dark);
+}
+
+.feature-description {
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* Add staggered animation on scroll */
+.feature-card {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.features.visible .feature-card {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.features.visible .feature-card:nth-child(1) {
+  transition-delay: 0.1s;
+}
+
+.features.visible .feature-card:nth-child(2) {
+  transition-delay: 0.2s;
+}
+
+.features.visible .feature-card:nth-child(3) {
+  transition-delay: 0.3s;
+}
+
+.features.visible .feature-card:nth-child(4) {
+  transition-delay: 0.4s;
+}
+
+/* Responsive design improvements */
+@media (max-width: 992px) {
   .features-content {
-    position: relative;
-    z-index: 1;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--spacing-xl);
-    align-items: center;
+    grid-template-columns: 1fr;
   }
   
   .features-text {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  
-  .features-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: var(--spacing-md);
-    line-height: 1.2;
-  }
-  
-  .features-subtitle {
-    color: var(--color-text-secondary);
-    font-size: 1.1rem;
-    line-height: 1.6;
+    text-align: center;
+    align-items: center;
     margin-bottom: var(--spacing-lg);
   }
   
+  .features-subtitle {
+    max-width: 100%;
+  }
+  
   .features-list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-lg);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-md);
+  }
+}
+
+@media (max-width: 768px) {
+  .features-title {
+    font-size: 2rem;
+  }
+  
+  .features-list {
+    grid-template-columns: 1fr;
   }
   
   .feature-card {
-    display: flex;
-    gap: var(--spacing-md);
-    background-color: rgba(30, 30, 30, 0.6);
-    border-radius: var(--border-radius);
-    padding: var(--spacing-lg);
-    transition: all var(--transition-speed) ease;
-  }
-  
-  .feature-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-    background-color: rgba(40, 40, 40, 0.6);
+    flex-direction: row;
+    align-items: flex-start;
   }
   
   .feature-icon {
     width: 50px;
     height: 50px;
     min-width: 50px;
-    background-color: var(--color-primary);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
   }
   
   .feature-icon svg {
     width: 24px;
     height: 24px;
-    color: white;
   }
-  
-  .feature-content {
-    display: flex;
+}
+
+@media (max-width: 480px) {
+  .feature-card {
     flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: var(--spacing-md);
   }
   
-  .feature-title {
-    font-size: 1.2rem;
-    font-weight: 600;
-    margin-bottom: var(--spacing-xs);
+  .feature-icon {
+    margin-bottom: var(--spacing-sm);
   }
-  
-  .feature-description {
-    color: var(--color-text-secondary);
-    font-size: 0.95rem;
-    line-height: 1.6;
-  }
-  
-  @media (max-width: 992px) {
-    .features-content {
-      grid-template-columns: 1fr;
-    }
-    
-    .features-text {
-      text-align: center;
-      align-items: center;
-      margin-bottom: var(--spacing-lg);
-    }
-  }
-  
-  @media (max-width: 768px) {
-    .feature-card {
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-    }
-    
-    .feature-icon {
-      margin-bottom: var(--spacing-sm);
-    }
-  }
+}

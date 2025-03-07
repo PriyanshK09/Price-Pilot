@@ -1,18 +1,48 @@
 .newsletter {
   background-color: var(--color-background);
+  position: relative;
+  overflow: hidden;
+  padding: var(--spacing-xl) 0;
 }
 
+/* Add animation on scroll */
+.newsletter.visible .newsletter-container {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Updated Newsletter.css with more rounded corners and increased width */
 .newsletter-container {
   background-color: var(--color-surface);
-  border-radius: var(--border-radius-lg);
-  padding: var(--spacing-xl);
+  border-radius: 24px; /* Increased border radius for more rounded corners */
+  padding: var(--spacing-xl) var(--spacing-xxl); /* Added horizontal padding */
   text-align: center;
-  max-width: 800px;
+  max-width: 900px; /* Increased from 800px to 900px for more width */
   margin: 0 auto;
   position: relative;
   overflow: hidden;
   border: 1px solid var(--color-border);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+  transition: all 0.8s ease;
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+/* Enhanced theme support */
+.light-theme .newsletter-container {
+  background-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Better background elements */
+.newsletter-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
 }
 
 .newsletter-glow {
@@ -21,10 +51,52 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle at top right, rgba(105, 117, 101, 0.2), transparent 70%);
+  background: radial-gradient(ellipse at top right, rgba(105, 117, 101, 0.2), transparent 70%);
   z-index: 0;
 }
 
+.light-theme .newsletter-glow {
+  background: radial-gradient(ellipse at top right, rgba(105, 117, 101, 0.1), transparent 70%);
+}
+
+/* Add subtle pattern */
+.newsletter-pattern {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(rgba(105, 117, 101, 0.1) 2px, transparent 2px);
+  background-size: 24px 24px;
+  opacity: 0.3;
+}
+
+.light-theme .newsletter-pattern {
+  opacity: 0.15;
+}
+
+/* New icon at the top */
+.newsletter-icon {
+  background-color: var(--color-primary);
+  width: 70px; /* Slightly larger */
+  height: 70px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--spacing-md);
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 10px 25px rgba(105, 117, 101, 0.35);
+}
+
+.newsletter-icon svg {
+  color: white;
+  width: 32px; /* Slightly larger */
+  height: 32px;
+}
+
+/* Improved title styling */
 .newsletter-title {
   font-family: var(--font-display);
   font-size: 2.5rem;
@@ -33,12 +105,24 @@
   position: relative;
   z-index: 1;
   letter-spacing: -0.02em;
+  background: linear-gradient(135deg, var(--color-text), var(--color-primary-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
+.light-theme .newsletter-title {
+  background: linear-gradient(135deg, var(--color-text-dark), var(--color-primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Subtitle adjustments */
 .newsletter-subtitle {
   color: var(--color-text-secondary);
   margin-bottom: var(--spacing-lg);
-  max-width: 600px;
+  max-width: 700px; /* Increased from 600px */
   margin-left: auto;
   margin-right: auto;
   position: relative;
@@ -47,26 +131,47 @@
   line-height: 1.6;
 }
 
+/* Improved form styling */
 .newsletter-form {
   position: relative;
   z-index: 1;
+  transition: all 0.4s ease;
 }
 
+.newsletter-form-content {
+  transition: all 0.3s ease;
+}
+
+/* Update input group to take more width */
 .newsletter-input-group {
   display: flex;
-  max-width: 500px;
+  max-width: 580px; /* Increased from 500px to 580px */
   margin: 0 auto;
+  position: relative;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+  border-radius: 12px; /* Increased border radius */
 }
 
+.light-theme .newsletter-input-group {
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+}
+
+/* Update input fields with more rounded corners */
 .newsletter-input-group input {
   flex: 1;
-  padding: 16px 20px;
+  padding: 18px 24px; /* Slightly larger padding */
   border: none;
-  border-radius: var(--border-radius) 0 0 var(--border-radius);
+  border-radius: 12px 0 0 12px; /* Increased border radius */
   background-color: var(--color-surface-light);
   color: var(--color-text);
   font-size: 1rem;
   font-family: var(--font-primary);
+  transition: all 0.3s ease;
+}
+
+.light-theme .newsletter-input-group input {
+  background-color: white;
+  color: var(--color-text-dark);
 }
 
 .newsletter-input-group input:focus {
@@ -75,14 +180,103 @@
 }
 
 .newsletter-input-group button {
-  border-radius: 0 var(--border-radius) var(--border-radius) 0;
-  padding: 0 24px;
+  border-radius: 0 12px 12px 0; /* Increased border radius */
+  padding: 0 28px; /* More horizontal padding */
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Slightly more gap between text and icon */
+  font-weight: 600;
+  font-size: 1.05rem; /* Slightly larger font */
+}
+
+.newsletter-input-group button .btn-icon {
+  transition: transform 0.2s ease;
+}
+
+.newsletter-input-group button:hover .btn-icon {
+  transform: translateX(3px);
 }
 
 .newsletter-privacy {
   font-size: 0.8rem;
   color: var(--color-text-secondary);
   margin-top: var(--spacing-sm);
+}
+
+/* Success state styling */
+/* Update success message container to match new border radius */
+.newsletter-success {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surface);
+  border-radius: 12px;
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(0.9);
+  transition: all 0.3s ease;
+}
+
+.light-theme .newsletter-success {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.newsletter-form.submitted .newsletter-form-content {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.newsletter-form.submitted .newsletter-success {
+  opacity: 1;
+  visibility: visible;
+  transform: scale(1);
+}
+
+.newsletter-success-icon {
+  background-color: var(--color-primary);
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--spacing-md);
+  box-shadow: 0 10px 20px rgba(105, 117, 101, 0.3);
+}
+
+.newsletter-success-icon svg {
+  color: white;
+  width: 28px;
+  height: 28px;
+}
+
+.newsletter-success h3 {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  margin-bottom: var(--spacing-xs);
+  color: var(--color-text);
+}
+
+.light-theme .newsletter-success h3 {
+  color: var(--color-text-dark);
+}
+
+.newsletter-success p {
+  color: var(--color-text-secondary);
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .newsletter-container {
+    max-width: 85%; /* Use percentage on smaller screens */
+    padding: var(--spacing-lg);
+  }
 }
 
 @media (max-width: 768px) {
@@ -96,15 +290,73 @@
   }
   
   .newsletter-input-group input {
-    border-radius: var(--border-radius);
+    border-radius: 12px; /* Keep rounded even in stacked layout */
+    padding: 16px 20px;
+    text-align: center;
   }
   
   .newsletter-input-group button {
-    border-radius: var(--border-radius);
+    border-radius: 12px;
+    padding: 14px;
     width: 100%;
+    justify-content: center;
   }
   
   .newsletter-title {
     font-size: 2rem;
   }
+  
+  .newsletter-icon {
+    width: 56px;
+    height: 56px;
+  }
+  
+  .newsletter-icon svg {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .newsletter-container::before {
+    border-radius: 20px; /* Adjust for smaller screens */
+  }
+}
+
+@media (max-width: 480px) {
+  .newsletter-container {
+    padding: var(--spacing-md);
+  }
+  
+  .newsletter-title {
+    font-size: 1.8rem;
+  }
+  
+  .newsletter-subtitle {
+    font-size: 1rem;
+  }
+}
+
+/* Add animated gradient border glow on hover */
+.newsletter-container:hover {
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
+}
+
+.newsletter-container::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, 
+    rgba(105, 117, 101, 0.2), 
+    rgba(255, 255, 255, 0.05), 
+    rgba(105, 117, 101, 0.2));
+  border-radius: 25px; /* Slightly larger than the container */
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.newsletter-container:hover::before {
+  opacity: 0.8;
 }

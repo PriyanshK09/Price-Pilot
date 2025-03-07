@@ -69,13 +69,14 @@
 .hero-content.visible {
   opacity: 1;
   transform: translateY(0);
+  animation: heroContentFocus 0.8s ease forwards;
 }
 
 .hero-badges {
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-xs);
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
 }
 
 .hero-badge {
@@ -98,6 +99,7 @@
   font-weight: 700;
   margin-bottom: var(--spacing-md);
   letter-spacing: -0.02em;
+  margin-top: 10px;
 }
 
 .hero-title-highlight {
@@ -621,7 +623,7 @@
 
 @media (max-width: 768px) {
   .hero {
-    padding: calc(var(--spacing-xl) + 60px) 0 var(--spacing-lg);
+    padding: calc(var(--spacing-xl) + 80px) 0 var(--spacing-lg);
     min-height: auto;
     height: auto;
     overflow: visible;
@@ -650,6 +652,7 @@
     z-index: 2;
     padding: 0;
     background: none;
+    margin-top: 20px;
   }
   
   /* Improve the hero content spacing */
@@ -658,13 +661,52 @@
   }
   
   .hero-title {
-    font-size: 2.2rem;
-    margin-bottom: var(--spacing-sm);
+    font-size: 2.6rem; /* Increased from 2.2rem */
+    margin-bottom: var(--spacing-md); /* Increased from var(--spacing-sm) */
+    line-height: 1.15; /* Slightly tighter line height */
   }
   
   .hero-title-highlight::after {
-    height: 6px;
-    bottom: 3px;
+    height: 7px; /* Slightly taller highlight */
+    bottom: 4px;
+  }
+  
+  .hero-title-highlight {
+    color: var(--color-primary);
+    font-weight: 800; /* Make the highlight text slightly bolder */
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); /* Subtle text shadow for emphasis */
+  }
+  
+  .light-theme .hero-title-highlight {
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Reduce description size to put more emphasis on title */
+  .hero-description {
+    font-size: 0.9rem; /* Slightly reduced */
+    margin-bottom: var(--spacing-md);
+    line-height: 1.6;
+  }
+  
+  /* Add a subtle transition when coming into view */
+  .hero-content {
+    transition: opacity 0.9s ease, transform 0.9s ease;
+  }
+  
+  .hero-content.visible .hero-title {
+    animation: titlePulse 1.5s ease-out;
+  }
+  
+  @keyframes titlePulse {
+    0% {
+      transform: scale(0.98);
+    }
+    50% {
+      transform: scale(1.01);
+    }
+    100% {
+      transform: scale(1);
+    }
   }
   
   .hero-description {
@@ -755,15 +797,19 @@
   }
 }
 
-/* Extra small devices adjustments */
 @media (max-width: 576px) {
   .hero {
-    padding-top: calc(var(--spacing-xl) + 40px);
+    padding-top: calc(var(--spacing-xl) + 60px);
     padding-bottom: var(--spacing-lg);
   }
   
   .hero-title {
-    font-size: 2rem;
+    font-size: 2.3rem; /* Increased from 2rem */
+    margin-bottom: var(--spacing-sm);
+  }
+  
+  .hero-content {
+    margin-top: 15px;
   }
   
   .hero-stat-value {
@@ -775,10 +821,15 @@
   }
 }
 
-/* Further adjustments for extremely small screens */
 @media (max-width: 380px) {
   .hero-title {
-    font-size: 1.8rem;
+    font-size: 2rem; /* Increased from 1.8rem */
+  }
+  
+  /* Ensure the highlight stays proportional */
+  .hero-title-highlight::after {
+    height: 6px;
+    bottom: 3px;
   }
   
   .hero-description {
@@ -821,5 +872,16 @@
   
   .hero-content {
     max-width: 600px;
+  }
+}
+
+@keyframes heroContentFocus {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
