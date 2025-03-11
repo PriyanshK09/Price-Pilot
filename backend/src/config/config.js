@@ -4,17 +4,24 @@ module.exports = {
   nodeEnv: process.env.NODE_ENV || 'development',
   port: process.env.PORT || 5000,
   scraperApi: {
-    apiKey: process.env.SCRAPER_API_KEY,
-    baseUrl: 'https://api.scraperapi.com',
-  },
-  cache: {
-    ttl: parseInt(process.env.CACHE_TTL) || 3600, // 1 hour in seconds
+    apiKey: process.env.SCRAPER_API_KEY || '',
+    baseUrl: process.env.SCRAPER_API_URL || 'https://api.scraperapi.com'
   },
   mongodb: {
-    uri: process.env.MONGODB_URI || 'mongodb://localhost:27017/price-pilot',
+    uri: process.env.MONGODB_URI || 'mongodb://localhost:27017/pricepilot',
+    options: {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    }
   },
-  rateLimiter: {
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // limit each IP to 100 requests per windowMs
+  cors: {
+    origin: process.env.NODE_ENV === 'production' 
+      ? ['https://pricepilot.com', 'https://www.pricepilot.com'] 
+      : ['http://localhost:3000', 'http://127.0.0.1:3000']
+  },
+  cache: {
+    memoryTTL: 60 * 30, // 30 minutes
+    dbRefreshInterval: 60 * 60 * 2, // 2 hours in seconds
+    staleCheckInterval: 60 * 10 // Check for stale data every 10 minutes
   }
 };

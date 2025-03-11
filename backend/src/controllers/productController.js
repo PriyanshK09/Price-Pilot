@@ -1,142 +1,169 @@
 const scrapingService = require('../services/scrapingService');
 const cacheService = require('../services/cacheService');
-const Product = require('../models/Product');
+const dbService = require('../services/dbService'); 
 const { ApiError } = require('../middleware/errorHandler');
-const { generateMockProducts } = require('../utils/mockData'); // Import the mock data utility
+const { generateMockProducts } = require('../utils/mockData');
 
-class ProductController {
-  /**
-   * Search for products
-   */
-  async searchProducts(req, res, next) {
+/**
+ * Search for products
+ */
+async function searchProducts(req, res, next) {
+  try {
+    const { q: query } = req.query;
+    
+    if (!query || query.trim().length < 2) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Search query must be at least 2 characters'
+      });
+    }
+    
+    // Extract search parameters
+    const options = {
+      page: parseInt(req.query.page) || 1,
+      sort: req.query.sort || 'relevance',
+      priceMin: req.query.priceMin ? parseInt(req.query.priceMin) : null,
+      priceMax: req.query.priceMax ? parseInt(req.query.priceMax) : null,
+      categories: req.query.categories ? req.query.categories.split(',') : null,
+      brands: req.query.brands ? req.query.brands.split(',') : null,
+      discounted: req.query.discounted === '1'
+    };
+    
     try {
-      const { q: query } = req.query;
+      // First, check memory cache for super-fast responses
+      const memoryCacheKey = `search:${query}:${JSON.stringify(options)}`;
+      const cachedInMemory = cacheService.get(memoryCacheKey);
       
-      if (!query || query.trim().length < 2) {
-        return res.status(400).json({ 
-          success: false, 
-          message: 'Search query must be at least 2 characters'
-        });
+      if (cachedInMemory) {
+        console.log(`Memory cache hit for query: ${query}`);
+        return res.json(cachedInMemory);
       }
       
-      // Extract other search parameters
-      const options = {
-        page: parseInt(req.query.page) || 1,
-        sort: req.query.sort || 'relevance',
-        priceMin: req.query.priceMin ? parseInt(req.query.priceMin) : null,
-        priceMax: req.query.priceMax ? parseInt(req.query.priceMax) : null,
-        categories: req.query.categories || null,
-        brands: req.query.brands || null,
-        discounted: req.query.discounted === '1'
-      };
+      // Second, check MongoDB cache
+      console.log(`Memory cache miss for query: ${query}, checking MongoDB cache...`);
+      const cachedInDb = await dbService.getSearchResults(query, options);
       
-      // Check cache first
-      const cacheKey = `search:${query}:${JSON.stringify(options)}`;
-      const cachedResults = cacheService.get(cacheKey);
-      
-      if (cachedResults) {
-        console.log(`Cache hit for query: ${query}`);
-        return res.json(cachedResults);
-      }
-      
-      try {
-        // If not in cache, perform web scraping
-        console.log(`Cache miss for query: ${query}, fetching from source...`);
-        const results = await scrapingService.searchProducts(query, options);
+      if (cachedInDb) {
+        console.log(`MongoDB cache hit for query: ${query}`);
+        const results = {
+          products: cachedInDb.products,
+          pagination: cachedInDb.pagination
+        };
         
-        // Check if any products were found
-        if (!results.products || results.products.length === 0) {
-          console.log('No products found, using mock data');
-          const mockResults = generateMockResults(query, options);
-          cacheService.set(cacheKey, mockResults, 300); // Short cache for mock data
-          return res.json(mockResults);
-        }
-        
-        // Store real results in cache (with 1 hour expiry)
-        cacheService.set(cacheKey, results, 3600);
+        // Store in memory cache for 5 minutes
+        cacheService.set(memoryCacheKey, results, 300);
         return res.json(results);
-        
-      } catch (error) {
-        console.error('Search API error:', error);
-        
-        // Return mock data as fallback
+      }
+      
+      // If not in either cache, perform web scraping
+      console.log(`MongoDB cache miss for query: ${query}, fetching from source...`);
+      const results = await scrapingService.searchProducts(query, options);
+      
+      // Check if any products were found
+      if (!results.products || results.products.length === 0) {
+        console.log('No products found, using mock data');
         const mockResults = generateMockResults(query, options);
-        cacheService.set(cacheKey, mockResults, 300); // Short cache for mock data
+        
+        // Store mock results in memory cache (short TTL)
+        cacheService.set(memoryCacheKey, mockResults, 300);
+        
+        // Store in MongoDB with a shorter refresh interval (1 hour instead of 2)
+        await dbService.saveSearchResults(query, options, mockResults);
+        
         return res.json(mockResults);
       }
+      
+      // Store real results in memory cache (30 minutes)
+      cacheService.set(memoryCacheKey, results, 1800);
+      
+      // Store in MongoDB for longer-term cache
+      await dbService.saveSearchResults(query, options, results);
+      
+      return res.json(results);
+      
     } catch (error) {
-      next(error);
+      console.error('Search API error:', error);
+      
+      // Return mock data as fallback
+      const mockResults = generateMockResults(query, options);
+      
+      // Still cache mock results but with shorter expiry (5 minutes)
+      cacheService.set(`search:${query}:${JSON.stringify(options)}`, mockResults, 300);
+      
+      return res.json(mockResults);
     }
+  } catch (error) {
+    next(error);
   }
+}
 
-  /**
-   * Get product details by ID
-   */
-  async getProductById(req, res, next) {
-    try {
-      const { id } = req.params;
-      
-      // First check the database
-      let product = await Product.findById(id);
-      
-      if (!product) {
-        throw new ApiError('Product not found', 404);
-      }
-      
-      // Check if we need to refresh the data
-      const lastUpdated = new Date(product.updatedAt);
-      const now = new Date();
-      const hoursSinceUpdate = (now - lastUpdated) / (1000 * 60 * 60);
-      
-      if (hoursSinceUpdate > 24) {
-        // Refresh data from scraping service
-        // This would typically use product URL to get fresh details
-        // For now, just return the database copy
-        console.log('Product data is stale but not refreshing in this example');
-      }
-      
-      res.json(product);
-    } catch (error) {
-      next(error);
+/**
+ * Get product details by ID
+ */
+async function getProductById(req, res, next) {
+  try {
+    const { id } = req.params;
+    
+    // First check the database
+    let product = await Product.findById(id);
+    
+    if (!product) {
+      throw new ApiError('Product not found', 404);
     }
+    
+    // Check if we need to refresh the data
+    const lastUpdated = new Date(product.updatedAt);
+    const now = new Date();
+    const hoursSinceUpdate = (now - lastUpdated) / (1000 * 60 * 60);
+    
+    if (hoursSinceUpdate > 24) {
+      // Refresh data from scraping service
+      // This would typically use product URL to get fresh details
+      // For now, just return the database copy
+      console.log('Product data is stale but not refreshing in this example');
+    }
+    
+    res.json(product);
+  } catch (error) {
+    next(error);
   }
-  
-  /**
-   * Get trending products
-   */
-  async getTrendingProducts(req, res, next) {
-    try {
-      // This would be based on your business logic
-      // For example, most viewed products or most price-dropped products
+}
+
+/**
+ * Get trending products
+ */
+async function getTrendingProducts(req, res, next) {
+  try {
+    // This would be based on your business logic
+    // For example, most viewed products or most price-dropped products
+    
+    // For now, return a sample of products
+    const products = await Product.find()
+      .sort({ 'rating.average': -1 })
+      .limit(10);
       
-      // For now, return a sample of products
-      const products = await Product.find()
-        .sort({ 'rating.average': -1 })
-        .limit(10);
-        
-      res.json(products);
-    } catch (error) {
-      next(error);
-    }
+    res.json(products);
+  } catch (error) {
+    next(error);
   }
-  
-  /**
-   * Get price history for a product
-   */
-  async getPriceHistory(req, res, next) {
-    try {
-      const { id } = req.params;
-      
-      // Query price history data
-      // Would connect to the PriceHistory model
-      
-      res.json({
-        message: 'Price history endpoint - to be implemented',
-        productId: id
-      });
-    } catch (error) {
-      next(error);
-    }
+}
+
+/**
+ * Get price history for a product
+ */
+async function getPriceHistory(req, res, next) {
+  try {
+    const { id } = req.params;
+    
+    // Query price history data
+    // Would connect to the PriceHistory model
+    
+    res.json({
+      message: 'Price history endpoint - to be implemented',
+      productId: id
+    });
+  } catch (error) {
+    next(error);
   }
 }
 
@@ -157,4 +184,9 @@ function generateMockResults(query, options) {
   };
 }
 
-module.exports = new ProductController();
+module.exports = {
+  searchProducts,
+  getProductById,
+  getTrendingProducts,
+  getPriceHistory
+};

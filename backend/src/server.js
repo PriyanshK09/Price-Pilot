@@ -1,34 +1,39 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
+const mongoose = require('mongoose');
 const { errorHandler } = require('./middleware/errorHandler');
 const config = require('./config/config');
+const refreshWorker = require('./services/refreshWorker');
 
 // Initialize express app
 const app = express();
+
+// Connect to MongoDB
+mongoose.connect(config.mongodb.uri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => {
+  console.log('Connected to MongoDB');
+  
+  // Start the refresh worker after successful DB connection
+  refreshWorker.start(10); // Check every 10 minutes
+})
+.catch(error => {
+  console.error('MongoDB connection error:', error);
+});
 
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Update the CORS configuration
-
 // CORS configuration
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
+  origin: config.cors.origin || '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
-  credentials: true
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
-
-// Add additional headers for development
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  next();
-});
 
 // Logging
 if (config.nodeEnv === 'development') {
@@ -43,7 +48,7 @@ app.get('/api/test', (req, res) => {
   res.json({ 
     message: 'API is working!', 
     env: config.nodeEnv, 
-    scraperApiKey: config.scraperApi.apiKey ? 'Configured' : 'Missing'
+    dbConnected: mongoose.connection.readyState === 1
   });
 });
 
@@ -60,4 +65,18 @@ app.listen(PORT, () => {
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err) => {
   console.error('Unhandled Promise Rejection:', err);
+});
+
+// Graceful shutdown
+process.on('SIGINT', async () => {
+  console.log('Shutting down server...');
+  
+  // Stop the refresh worker
+  refreshWorker.stop();
+  
+  // Close MongoDB connection
+  await mongoose.connection.close();
+  console.log('MongoDB connection closed');
+  
+  process.exit(0);
 });
