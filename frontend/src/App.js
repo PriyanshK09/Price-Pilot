@@ -14,6 +14,9 @@ import SearchResults from './pages/SearchResults/SearchResults';
 import CursorGlow from './components/CursorGlow/CursorGlow';
 import './App.css';
 
+// Dev's Miscellaneous
+import ApiTest from './components/ApiTest';
+
 function App() {
   const [theme, setTheme] = useState('dark');
   
@@ -66,6 +69,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/search" element={<SearchResults />} />
           {/* Add more routes as needed */}
+          <Route path="/api-test" element={<ApiTest />} />
         </Routes>
       </main>
       <Footer />

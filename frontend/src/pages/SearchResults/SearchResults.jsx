@@ -10,6 +10,28 @@ import ProductCard from '../../components/Product/ProductCard/ProductCard';
 import Pagination from '../../components/UI/Pagination/Pagination';
 import Loader from '../../components/UI/Loader/Loader';
 import './SearchResults.css';
+import { apiFetch } from '../../utils/apiFetch';
+
+// First define the sample data for filters before using them
+const sampleCategories = [
+  { id: 'smartphones', name: 'Smartphones', count: 124 },
+  { id: 'laptops', name: 'Laptops', count: 98 },
+  { id: 'audio', name: 'Audio', count: 76 },
+  { id: 'cameras', name: 'Cameras', count: 42 },
+  { id: 'tablets', name: 'Tablets', count: 38 },
+  { id: 'smartwatches', name: 'Smartwatches', count: 35 },
+  { id: 'accessories', name: 'Accessories', count: 104 },
+];
+
+const sampleBrands = [
+  { id: 'apple', name: 'Apple', count: 78 },
+  { id: 'samsung', name: 'Samsung', count: 64 },
+  { id: 'sony', name: 'Sony', count: 46 },
+  { id: 'google', name: 'Google', count: 36 },
+  { id: 'xiaomi', name: 'Xiaomi', count: 32 },
+  { id: 'hp', name: 'HP', count: 28 },
+  { id: 'dell', name: 'Dell', count: 26 },
+];
 
 const SearchResults = () => {
   // Get search query from URL
@@ -28,31 +50,13 @@ const SearchResults = () => {
   const [viewMode, setViewMode] = useState('grid');
   const filterRef = useRef(null);
   
-  // Filter states
+  // Filter states - now using the predefined sample data
   const [priceRange, setPriceRange] = useState([0, 200000]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [onlyDiscounted, setOnlyDiscounted] = useState(false);
-  
-  // Sample data for filters
-  const categories = [
-    { id: 'smartphones', name: 'Smartphones', count: 124 },
-    { id: 'laptops', name: 'Laptops', count: 98 },
-    { id: 'audio', name: 'Audio', count: 76 },
-    { id: 'cameras', name: 'Cameras', count: 45 },
-    { id: 'gaming', name: 'Gaming', count: 67 },
-    { id: 'wearables', name: 'Wearables', count: 34 },
-  ];
-  
-  const brands = [
-    { id: 'apple', name: 'Apple', count: 87 },
-    { id: 'samsung', name: 'Samsung', count: 94 },
-    { id: 'sony', name: 'Sony', count: 67 },
-    { id: 'dell', name: 'Dell', count: 45 },
-    { id: 'lg', name: 'LG', count: 38 },
-    { id: 'hp', name: 'HP', count: 56 },
-    { id: 'lenovo', name: 'Lenovo', count: 42 },
-  ];
+  const [availableCategories, setAvailableCategories] = useState(sampleCategories);
+  const [availableBrands, setAvailableBrands] = useState(sampleBrands);
   
   // Fetch search results
   useEffect(() => {
@@ -60,32 +64,57 @@ const SearchResults = () => {
       setIsLoading(true);
       
       try {
-        // In a real app, this would be an API call
-        // const response = await api.get('/products/search', { 
-        //   params: { 
-        //     q: query, 
-        //     page: currentPage, 
-        //     sort: sortBy,
-        //     priceMin: priceRange[0],
-        //     priceMax: priceRange[1],
-        //     categories: selectedCategories.join(','),
-        //     brands: selectedBrands.join(','),
-        //     discounted: onlyDiscounted ? 1 : 0
-        //   } 
-        // });
+        // Build query parameters
+        const params = new URLSearchParams({
+          q: query,
+          page: currentPage,
+          sort: sortBy,
+        });
         
-        // Simulate API response delay
-        await new Promise(resolve => setTimeout(resolve, 800));
+        // Add optional parameters
+        if (priceRange[0] > 0) params.append('priceMin', priceRange[0]);
+        if (priceRange[1] < 200000) params.append('priceMax', priceRange[1]);
+        if (selectedCategories.length > 0) params.append('categories', selectedCategories.join(','));
+        if (selectedBrands.length > 0) params.append('brands', selectedBrands.join(','));
+        if (onlyDiscounted) params.append('discounted', '1');
         
-        // Mock search results
+        const endpoint = `/products/search?${params.toString()}`;
+        console.log(`Fetching search results from endpoint: ${endpoint}`);
+        
+        const data = await apiFetch(endpoint);
+        console.log('Search results data:', data);
+        
+        if (data.products && Array.isArray(data.products)) {
+          setProducts(data.products);
+          setTotalResults(data.pagination?.totalResults || data.products.length);
+          setTotalPages(data.pagination?.totalPages || 1);
+          
+          // Extract available filters from the response if provided
+          if (data.filters) {
+            if (data.filters.categories) {
+              setAvailableCategories(data.filters.categories);
+            }
+            if (data.filters.brands) {
+              setAvailableBrands(data.filters.brands);
+            }
+          }
+        } else {
+          console.error('Invalid data format from API:', data);
+          throw new Error('Received invalid data format from server');
+        }
+      } catch (error) {
+        console.error('Error fetching search results:', error);
+        
+        // Fallback to mock data when API fails
+        console.log('Falling back to mock data');
         const mockResults = generateMockProducts(query, 24);
         setProducts(mockResults);
         setTotalResults(245);
         setTotalPages(11);
-      } catch (error) {
-        console.error('Error fetching search results:', error);
       } finally {
         setIsLoading(false);
+        // Auto-scroll to top when changing results
+        window.scrollTo(0, 0);
       }
     };
     
@@ -392,7 +421,7 @@ const SearchResults = () => {
                 </h3>
               </div>
               <div className="categories-filter">
-                {categories.map((category) => (
+                {availableCategories.map((category) => (
                   <label key={category.id} className="custom-checkbox">
                     <input 
                       type="checkbox" 
@@ -416,7 +445,7 @@ const SearchResults = () => {
                 </h3>
               </div>
               <div className="brands-filter">
-                {brands.map((brand) => (
+                {availableBrands.map((brand) => (
                   <label key={brand.id} className="custom-checkbox">
                     <input 
                       type="checkbox" 

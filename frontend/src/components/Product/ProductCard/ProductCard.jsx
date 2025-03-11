@@ -14,7 +14,8 @@ const ProductCard = ({ product, viewMode = 'grid' }) => {
     store,
     rating,
     reviewCount,
-    inStock
+    inStock,
+    delivery
   } = product;
 
   const formatPrice = (price) => {
@@ -40,32 +41,43 @@ const ProductCard = ({ product, viewMode = 'grid' }) => {
             
             {discountPercent > 0 && (
               <div className="product-card-discount">
-                <span>{discountPercent}% OFF</span>
+                -{discountPercent}%
               </div>
             )}
           </div>
           
           <div className="product-card-content">
-            <Link to={`/product/${id}`} className="product-card-title-link">
-              <h3 className="product-card-title">{title}</h3>
+            <div className="product-card-store">{store}</div>
+            
+            <Link to={`/product/${id}`} className="product-card-title">
+              {title.length > 65 ? `${title.substring(0, 65)}...` : title}
             </Link>
             
-            <div className="product-card-rating">
-              <div className="rating-stars">
-                <Star size={14} fill="#697565" color="#697565" />
-                <span>{rating}</span>
+            <div className="product-card-pricing">
+              <div className="product-card-current-price">
+                {formatPrice(currentPrice)}
               </div>
-              <span className="reviews-count">({reviewCount} reviews)</span>
-            </div>
-            
-            <div className="product-card-store">
-              <span>from</span> {store}
-            </div>
-            
-            <div className="product-card-price">
-              <div className="price-current">{formatPrice(currentPrice)}</div>
+              
               {originalPrice && (
-                <div className="price-original">{formatPrice(originalPrice)}</div>
+                <div className="product-card-original-price">
+                  {formatPrice(originalPrice)}
+                </div>
+              )}
+            </div>
+            
+            <div className="product-card-meta">
+              {rating && (
+                <div className="product-card-rating">
+                  <Star size={14} fill="currentColor" strokeWidth={0} />
+                  <span>{rating}</span>
+                  {reviewCount > 0 && <span className="product-card-reviews">({reviewCount})</span>}
+                </div>
+              )}
+              
+              {delivery && (
+                <div className="product-card-delivery">
+                  {delivery}
+                </div>
               )}
             </div>
             
@@ -84,7 +96,7 @@ const ProductCard = ({ product, viewMode = 'grid' }) => {
             View Details
           </Link>
           <button 
-            onClick={() => window.open(`https://pricepilot.com/compare/${id}`, '_blank')}
+            onClick={() => window.open(product.productUrl || `https://pricepilot.com/compare/${id}`, '_blank')}
             className="btn btn-outline btn-card"
           >
             Compare Prices <ExternalLink size={14} />
