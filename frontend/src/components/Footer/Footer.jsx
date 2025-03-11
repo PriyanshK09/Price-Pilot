@@ -22,24 +22,24 @@ function Footer() {
               Your trusted guide to finding the best deals across the web. We help you save money on every purchase.
             </p>
             <div className="footer-social">
-              <a href="#" className="social-link" aria-label="Facebook">
+              <a href="https://facebook.com" className="social-link" aria-label="Facebook">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
                 </svg>
               </a>
-              <a href="#" className="social-link" aria-label="Twitter">
+              <a href="https://twitter.com" className="social-link" aria-label="Twitter">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
                 </svg>
               </a>
-              <a href="#" className="social-link" aria-label="Instagram">
+              <a href="https://instagram.com" className="social-link" aria-label="Instagram">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
                   <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
                   <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
                 </svg>
               </a>
-              <a href="#" className="social-link" aria-label="YouTube">
+              <a href="https://youtube.com" className="social-link" aria-label="YouTube">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"></path>
                   <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon>
@@ -52,36 +52,36 @@ function Footer() {
             <div className="footer-links-column">
               <h3 className="footer-links-title">Categories</h3>
               <ul className="footer-links-list">
-                <li><a href="#">Electronics</a></li>
-                <li><a href="#">Home & Kitchen</a></li>
-                <li><a href="#">Fashion</a></li>
-                <li><a href="#">Beauty</a></li>
-                <li><a href="#">Sports & Outdoors</a></li>
-                <li><a href="#">Toys & Games</a></li>
+                <li><a href="/categories/electronics">Electronics</a></li>
+                <li><a href="/categories/home-kitchen">Home & Kitchen</a></li>
+                <li><a href="/categories/fashion">Fashion</a></li>
+                <li><a href="/categories/beauty">Beauty</a></li>
+                <li><a href="/categories/sports">Sports & Outdoors</a></li>
+                <li><a href="/categories/toys">Toys & Games</a></li>
               </ul>
             </div>
             
             <div className="footer-links-column">
               <h3 className="footer-links-title">Quick Links</h3>
               <ul className="footer-links-list">
-                <li><a href="#">Today's Deals</a></li>
-                <li><a href="#">Price History</a></li>
-                <li><a href="#">Price Alerts</a></li>
-                <li><a href="#">Popular Products</a></li>
-                <li><a href="#">Stores</a></li>
-                <li><a href="#">Blog</a></li>
+                <li><a href="/deals">Today's Deals</a></li>
+                <li><a href="/price-history">Price History</a></li>
+                <li><a href="/alerts">Price Alerts</a></li>
+                <li><a href="/popular">Popular Products</a></li>
+                <li><a href="/stores">Stores</a></li>
+                <li><a href="/blog">Blog</a></li>
               </ul>
             </div>
             
             <div className="footer-links-column">
               <h3 className="footer-links-title">Company</h3>
               <ul className="footer-links-list">
-                <li><a href="#">About Us</a></li>
-                <li><a href="#">How It Works</a></li>
-                <li><a href="#">Careers</a></li>
-                <li><a href="#">Press</a></li>
-                <li><a href="#">Partners</a></li>
-                <li><a href="#">Affiliate Program</a></li>
+                <li><a href="/about">About Us</a></li>
+                <li><a href="/how-it-works">How It Works</a></li>
+                <li><a href="/careers">Careers</a></li>
+                <li><a href="/press">Press</a></li>
+                <li><a href="/partners">Partners</a></li>
+                <li><a href="/affiliate">Affiliate Program</a></li>
               </ul>
             </div>
             
@@ -116,10 +116,10 @@ function Footer() {
         <div className="footer-bottom">
           <p className="copyright">© {currentYear} Price Pilot. All rights reserved.</p>
           <div className="footer-legal">
-            <a href="#">Privacy Policy</a>
-            <a href="#">Terms of Service</a>
-            <a href="#">Cookie Settings</a>
-            <a href="#">Accessibility</a>
+            <a href="/privacy">Privacy Policy</a>
+            <a href="/terms">Terms of Service</a>
+            <a href="/cookies">Cookie Settings</a>
+            <a href="/accessibility">Accessibility</a>
           </div>
         </div>
       </div>

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import { Route, Routes } from 'react-router-dom';
 import Header from './components/Header/Header';
 import Hero from './components/Hero/Hero';
+import HomeSearch from './components/Search/HomeSearch';
 import Deals from './components/Deals/Deals';
 import Process from './components/Process/Process';
 import Categories from './components/Categories/Categories';
@@ -8,6 +10,7 @@ import Testimonials from './components/Testimonials/Testimonials';
 import Features from './components/Features/Features';
 import Newsletter from './components/Newsletter/Newsletter';
 import Footer from './components/Footer/Footer';
+import SearchResults from './pages/SearchResults/SearchResults';
 import CursorGlow from './components/CursorGlow/CursorGlow';
 import './App.css';
 
@@ -40,18 +43,30 @@ function App() {
     setTheme(currentTheme => currentTheme === 'dark' ? 'light' : 'dark');
   };
 
+  // HomePage component to combine all home page sections
+  const HomePage = () => (
+    <>
+      <Hero />
+      <HomeSearch />
+      <Deals />
+      <Process />
+      <Categories />
+      <Testimonials />
+      <Features />
+      <Newsletter />
+    </>
+  );
+
   return (
     <div className="app">
       <CursorGlow />
       <Header theme={theme} toggleTheme={toggleTheme} />
       <main>
-        <Hero />
-        <Deals />
-        <Process />
-        <Categories />
-        <Testimonials />
-        <Features />
-        <Newsletter />
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/search" element={<SearchResults />} />
+          {/* Add more routes as needed */}
+        </Routes>
       </main>
       <Footer />
     </div>

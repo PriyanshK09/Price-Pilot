@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Moon, Sun, Bell, Heart, User, Menu, X } from 'lucide-react';
 import ReactDOM from 'react-dom';
 import './Header.css';
+import SearchGlobal from '../Search/SearchGlobal';
 
 function Header({ theme, toggleTheme }) {
   const [scrolled, setScrolled] = useState(false);
@@ -174,10 +175,7 @@ function Header({ theme, toggleTheme }) {
             </div>
             
             <div className="search-container">
-              <div className="search-bar">
-                <Search className="search-icon" size={18} />
-                <input type="text" placeholder="Search for products..." />
-              </div>
+              <SearchGlobal />
             </div>
             
             <div className="header-actions">
