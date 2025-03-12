@@ -22,6 +22,6 @@ module.exports = {
   cache: {
     memoryTTL: 60 * 30, // 30 minutes
     dbRefreshInterval: 60 * 60 * 2, // 2 hours in seconds
-    staleCheckInterval: 60 * 10 // Check for stale data every 10 minutes
+    staleCheckInterval: 60 * 30 // Check for stale data every 10 minutes
   }
 };

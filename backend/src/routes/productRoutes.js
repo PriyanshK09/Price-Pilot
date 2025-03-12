@@ -5,13 +5,15 @@ const productController = require('../controllers/productController');
 // Search products
 router.get('/search', productController.searchProducts);
 
-// Get product by ID
-router.get('/:id', productController.getProductById);
+// Get trending searches
+router.get('/trending/searches', productController.getTrendingSearches);
 
-// Get price history for a product
+// Other product routes
+router.get('/trending', productController.getTrendingProducts);
+router.get('/:id', productController.getProductById);
 router.get('/:id/price-history', productController.getPriceHistory);
 
-// Get trending products
-router.get('/trending/list', productController.getTrendingProducts);
+// Add the trending searches route
+router.get('/api/products/trending/searches', productController.getTrendingSearches);
 
 module.exports = router;

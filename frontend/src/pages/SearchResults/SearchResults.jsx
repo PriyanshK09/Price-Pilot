@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import { 
   Search, ChevronDown, ChevronRight, ArrowUpDown, 
-  Tag, Percent, Star, BarChart3, X, Filter,
-  LayoutGrid, LayoutList
+  Tag, Percent, Star, Filter,
+  LayoutGrid, LayoutList, X
 } from 'lucide-react';
 import Breadcrumb from '../../components/UI/Breadcrumb/Breadcrumb';
 import ProductCard from '../../components/Product/ProductCard/ProductCard';
@@ -11,17 +11,7 @@ import Pagination from '../../components/UI/Pagination/Pagination';
 import Loader from '../../components/UI/Loader/Loader';
 import './SearchResults.css';
 import { apiFetch } from '../../utils/apiFetch';
-
-// First define the sample data for filters before using them
-const sampleCategories = [
-  { id: 'smartphones', name: 'Smartphones', count: 124 },
-  { id: 'laptops', name: 'Laptops', count: 98 },
-  { id: 'audio', name: 'Audio', count: 76 },
-  { id: 'cameras', name: 'Cameras', count: 42 },
-  { id: 'tablets', name: 'Tablets', count: 38 },
-  { id: 'smartwatches', name: 'Smartwatches', count: 35 },
-  { id: 'accessories', name: 'Accessories', count: 104 },
-];
+import { addRecentSearch } from '../../utils/searchHistoryService';
 
 const sampleBrands = [
   { id: 'apple', name: 'Apple', count: 78 },
@@ -42,6 +32,7 @@ const SearchResults = () => {
   // State
   const [isLoading, setIsLoading] = useState(true);
   const [products, setProducts] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);  // Cache for all products
   const [totalResults, setTotalResults] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -50,76 +41,178 @@ const SearchResults = () => {
   const [viewMode, setViewMode] = useState('grid');
   const filterRef = useRef(null);
   
-  // Filter states - now using the predefined sample data
+  // Filter states
   const [priceRange, setPriceRange] = useState([0, 200000]);
-  const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [onlyDiscounted, setOnlyDiscounted] = useState(false);
-  const [availableCategories, setAvailableCategories] = useState(sampleCategories);
   const [availableBrands, setAvailableBrands] = useState(sampleBrands);
   
-  // Fetch search results
-  useEffect(() => {
-    const fetchSearchResults = async () => {
-      setIsLoading(true);
-      
-      try {
-        // Build query parameters
-        const params = new URLSearchParams({
-          q: query,
-          page: currentPage,
-          sort: sortBy,
-        });
-        
-        // Add optional parameters
-        if (priceRange[0] > 0) params.append('priceMin', priceRange[0]);
-        if (priceRange[1] < 200000) params.append('priceMax', priceRange[1]);
-        if (selectedCategories.length > 0) params.append('categories', selectedCategories.join(','));
-        if (selectedBrands.length > 0) params.append('brands', selectedBrands.join(','));
-        if (onlyDiscounted) params.append('discounted', '1');
-        
-        const endpoint = `/products/search?${params.toString()}`;
-        console.log(`Fetching search results from endpoint: ${endpoint}`);
-        
-        const data = await apiFetch(endpoint);
-        console.log('Search results data:', data);
-        
-        if (data.products && Array.isArray(data.products)) {
-          setProducts(data.products);
-          setTotalResults(data.pagination?.totalResults || data.products.length);
-          setTotalPages(data.pagination?.totalPages || 1);
-          
-          // Extract available filters from the response if provided
-          if (data.filters) {
-            if (data.filters.categories) {
-              setAvailableCategories(data.filters.categories);
-            }
-            if (data.filters.brands) {
-              setAvailableBrands(data.filters.brands);
-            }
-          }
-        } else {
-          console.error('Invalid data format from API:', data);
-          throw new Error('Received invalid data format from server');
-        }
-      } catch (error) {
-        console.error('Error fetching search results:', error);
-        
-        // Fallback to mock data when API fails
-        console.log('Falling back to mock data');
-        const mockResults = generateMockProducts(query, 24);
-        setProducts(mockResults);
-        setTotalResults(245);
-        setTotalPages(11);
-      } finally {
-        setIsLoading(false);
-        // Auto-scroll to top when changing results
-        window.scrollTo(0, 0);
-      }
-    };
+  // New state to track if initial data is loaded
+  const [initialDataLoaded, setInitialDataLoaded] = useState(false);
+  const [isFilterLoading, setIsFilterLoading] = useState(false);
+  
+  const fetchInitialResults = useCallback(async () => {
+    setIsLoading(true);
     
-    fetchSearchResults();
-  }, [query, currentPage, sortBy, priceRange, selectedCategories, selectedBrands, onlyDiscounted]);
+    try {
+      const initialFilterState = {
+        page: currentPage,
+        sort: sortBy,
+        priceMin: priceRange[0],
+        priceMax: priceRange[1],
+        brands: selectedBrands,
+        discounted: onlyDiscounted
+      };
+
+      const params = new URLSearchParams({
+        q: query,
+        page: 1,
+        sort: 'relevance',
+        filterOnServer: '0'
+      });
+      
+      const endpoint = `/products/search?${params.toString()}`;
+      console.log(`Fetching initial results from endpoint: ${endpoint}`);
+      
+      const data = await apiFetch(endpoint);
+      
+      if (data.products && Array.isArray(data.products)) {
+        setAllProducts(data.products);
+        applyFilters(data.products, initialFilterState);
+        
+        if (data.filters?.brands) {
+          setAvailableBrands(data.filters.brands);
+        }
+        
+        setInitialDataLoaded(true);
+      } else {
+        throw new Error('Received invalid data format from server');
+      }
+    } catch (error) {
+      console.error('Error fetching initial search results:', error);
+      const mockResults = generateMockProducts(query, 24);
+      setAllProducts(mockResults);
+      applyFilters(mockResults, {
+        page: currentPage,
+        sort: sortBy,
+        priceMin: priceRange[0],
+        priceMax: priceRange[1],
+        brands: selectedBrands,
+        discounted: onlyDiscounted
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [query, currentPage, sortBy, priceRange, selectedBrands, onlyDiscounted]);
+
+  // Fetch initial search results
+  useEffect(() => {
+    fetchInitialResults();
+    
+    // Save search query to recent searches
+    if (query && query.trim().length > 1) {
+      addRecentSearch(query);
+    }
+  }, [fetchInitialResults, query]); // Added query as a dependency
+  
+  // Apply filtering and sorting when filter parameters change
+  useEffect(() => {
+    const shouldApplyFilters = initialDataLoaded && allProducts.length > 0;
+    
+    if (shouldApplyFilters) {
+      setIsFilterLoading(true);
+      
+      const filterOptions = {
+        page: currentPage,
+        sort: sortBy,
+        priceMin: priceRange[0],
+        priceMax: priceRange[1],
+        brands: selectedBrands,
+        discounted: onlyDiscounted
+      };
+      
+      // Use setTimeout to prevent UI freezing on large datasets
+      const timeoutId = setTimeout(() => {
+        applyFilters(allProducts, filterOptions);
+        setIsFilterLoading(false);
+      }, 100);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [
+    initialDataLoaded, 
+    allProducts,
+    currentPage, 
+    sortBy, 
+    priceRange,
+    selectedBrands, 
+    onlyDiscounted
+  ]);
+  
+  // Function to apply filters and sorting client-side
+  const applyFilters = (sourceProducts, options) => {
+    let filteredProducts = [...sourceProducts];
+    
+    // Apply price range filter
+    if (options.priceMin > 0) {
+      filteredProducts = filteredProducts.filter(p => p.currentPrice >= options.priceMin);
+    }
+    
+    if (options.priceMax < 200000) {
+      filteredProducts = filteredProducts.filter(p => p.currentPrice <= options.priceMax);
+    }
+    
+    // Apply discount filter
+    if (options.discounted) {
+      filteredProducts = filteredProducts.filter(p => p.discountPercent > 0);
+    }
+    
+    // Apply brand filter
+    if (options.brands && options.brands.length > 0) {
+      filteredProducts = filteredProducts.filter(p => {
+        // Use store as brand if no brand field exists
+        const brand = p.brand || p.store;
+        if (!brand) return false;
+        return options.brands.includes(brand.toLowerCase().replace(/\s+/g, '-'));
+      });
+    }
+    
+    // Apply sorting
+    if (options.sort === 'price_low') {
+      filteredProducts.sort((a, b) => a.currentPrice - b.currentPrice);
+    } else if (options.sort === 'price_high') {
+      filteredProducts.sort((a, b) => b.currentPrice - a.currentPrice);
+    } else if (options.sort === 'discount') {
+      filteredProducts.sort((a, b) => b.discountPercent - a.discountPercent);
+    } else if (options.sort === 'rating') {
+      filteredProducts.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+    }
+    // For 'relevance' and 'newest', keep the original order
+    
+    // Calculate pagination
+    const totalFilteredResults = filteredProducts.length;
+    const totalFilteredPages = Math.max(1, Math.ceil(totalFilteredResults / 12));
+    
+    // Make sure current page is valid
+    const validPage = Math.min(options.page, totalFilteredPages);
+    
+    // Get paginated products
+    const startIndex = (validPage - 1) * 12;
+    const endIndex = startIndex + 12;
+    const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
+    
+    // Update state
+    setProducts(paginatedProducts);
+    setTotalResults(totalFilteredResults);
+    setTotalPages(totalFilteredPages);
+    
+    if (validPage !== options.page) {
+      setCurrentPage(validPage);
+    }
+    
+    // Scroll to top after filtering
+    window.scrollTo(0, 0);
+  };
   
   // Mock products generator
   const generateMockProducts = (searchTerm, count) => {
@@ -152,18 +245,9 @@ const SearchResults = () => {
     return mockProducts;
   };
   
-  // Handle filter toggling on mobile
+  // Handle filter toggling for all devices
   const toggleFilters = () => {
     setFiltersOpen(!filtersOpen);
-  };
-  
-  // Handle category selection
-  const toggleCategory = (categoryId) => {
-    if (selectedCategories.includes(categoryId)) {
-      setSelectedCategories(selectedCategories.filter(id => id !== categoryId));
-    } else {
-      setSelectedCategories([...selectedCategories, categoryId]);
-    }
   };
   
   // Handle brand selection
@@ -193,12 +277,24 @@ const SearchResults = () => {
     window.scrollTo(0, 0);
   };
   
+  // Check if any filters are applied
+  const hasActiveFilters = () => {
+    return (
+      priceRange[0] > 0 || 
+      priceRange[1] < 200000 || 
+      selectedBrands.length > 0 ||
+      onlyDiscounted
+    );
+  };
+
   // Reset all filters
   const resetFilters = () => {
     setPriceRange([0, 200000]);
-    setSelectedCategories([]);
     setSelectedBrands([]);
     setOnlyDiscounted(false);
+    // Immediate reset visuals for better UX
+    setIsFilterLoading(true);
+    setTimeout(() => setIsFilterLoading(false), 300);
   };
   
   // Format price display - Now used in the component, ESLint warning fixed
@@ -219,37 +315,29 @@ const SearchResults = () => {
 
   // Close filters when clicking outside (for mobile)
   useEffect(() => {
-    function handleClickOutside(event) {
-      if (window.innerWidth <= 992 && 
-          filterRef.current && 
-          !filterRef.current.contains(event.target) &&
-          !event.target.closest('.search-results-filter-toggle')) {
+    const handleClickOutside = (event) => {
+      const isMobile = window.innerWidth <= 992;
+      const isOutsideFilter = filterRef.current && !filterRef.current.contains(event.target);
+      const isNotToggleButton = !event.target.closest('.search-results-filter-toggle');
+      
+      if (isMobile && isOutsideFilter && isNotToggleButton) {
         setFiltersOpen(false);
       }
-    }
-    
+    };
+
+    const handleEscKey = (event) => {
+      const shouldCloseOnEsc = event.key === 'Escape' && window.innerWidth <= 992;
+      if (shouldCloseOnEsc) {
+        setFiltersOpen(false);
+      }
+    };
+
     document.addEventListener("mousedown", handleClickOutside);
-    
-    // Add escape key handler to close filters
-    const handleEscKey = (e) => {
-      if (e.key === 'Escape' && window.innerWidth <= 992) {
-        setFiltersOpen(false);
-      }
-    };
-    
     document.addEventListener('keydown', handleEscKey);
-    
-    // Handle window resize to auto-show filters on larger screens
-    const handleResize = () => {
-      setFiltersOpen(window.innerWidth > 992);
-    };
-    
-    window.addEventListener('resize', handleResize);
-    
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener('keydown', handleEscKey);
-      window.removeEventListener('resize', handleResize);
     };
   }, []);
 
@@ -327,12 +415,14 @@ const SearchResults = () => {
           >
             <div className="search-results-filters-header">
               <h2>Filters</h2>
-              <button 
-                className="search-results-filters-reset" 
-                onClick={resetFilters}
-              >
-                Reset All
-              </button>
+              {hasActiveFilters() && (
+                <button 
+                  className="search-results-filters-reset" 
+                  onClick={resetFilters}
+                >
+                  Reset All
+                </button>
+              )}
               
               {/* Mobile close button in header */}
               <button 
@@ -344,7 +434,31 @@ const SearchResults = () => {
               </button>
             </div>
             
-            {/* Price Range Filter */}
+            {/* Brands Filter - Renamed to Selling Partners and moved up */}
+            <div className="search-results-filter-group">
+              <div className="filter-group-header">
+                <h3>
+                  <Star size={16} />
+                  Selling Partners
+                </h3>
+              </div>
+              <div className="brands-filter">
+                {availableBrands.map((brand) => (
+                  <label key={brand.id} className="custom-checkbox">
+                    <input 
+                      type="checkbox" 
+                      checked={selectedBrands.includes(brand.id)} 
+                      onChange={() => toggleBrand(brand.id)}
+                    />
+                    <span className="checkmark"></span>
+                    <span>{brand.name}</span>
+                    <span className="filter-count">{brand.count}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+            
+            {/* Price Range Filter - Moved to bottom */}
             <div className="search-results-filter-group">
               <h3>
                 <Tag size={16} />
@@ -390,8 +504,8 @@ const SearchResults = () => {
                 </div>
               </div>
             </div>
-            
-            {/* Discount Filter */}
+
+            {/* Discount Filter - Moved below Selling Partners */}
             <div className="search-results-filter-group">
               <div className="filter-group-header">
                 <h3>
@@ -412,54 +526,6 @@ const SearchResults = () => {
               </div>
             </div>
             
-            {/* Categories Filter */}
-            <div className="search-results-filter-group">
-              <div className="filter-group-header">
-                <h3>
-                  <BarChart3 size={16} />
-                  Categories
-                </h3>
-              </div>
-              <div className="categories-filter">
-                {availableCategories.map((category) => (
-                  <label key={category.id} className="custom-checkbox">
-                    <input 
-                      type="checkbox" 
-                      checked={selectedCategories.includes(category.id)} 
-                      onChange={() => toggleCategory(category.id)}
-                    />
-                    <span className="checkmark"></span>
-                    <span>{category.name}</span>
-                    <span className="filter-count">{category.count}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-            
-            {/* Brands Filter */}
-            <div className="search-results-filter-group">
-              <div className="filter-group-header">
-                <h3>
-                  <Star size={16} />
-                  Brands
-                </h3>
-              </div>
-              <div className="brands-filter">
-                {availableBrands.map((brand) => (
-                  <label key={brand.id} className="custom-checkbox">
-                    <input 
-                      type="checkbox" 
-                      checked={selectedBrands.includes(brand.id)} 
-                      onChange={() => toggleBrand(brand.id)}
-                    />
-                    <span className="checkmark"></span>
-                    <span>{brand.name}</span>
-                    <span className="filter-count">{brand.count}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-            
             {/* Mobile filter apply button at bottom */}
             <div className="filters-action-buttons">
               <button 
@@ -476,6 +542,11 @@ const SearchResults = () => {
               <div className="search-results-loading">
                 <Loader />
                 <p>Searching for the best deals...</p>
+              </div>
+            ) : isFilterLoading ? (
+              <div className="search-results-loading filter-loading">
+                <Loader size="small" />
+                <p>Filtering products...</p>
               </div>
             ) : products.length > 0 ? (
               <>
@@ -502,12 +573,9 @@ const SearchResults = () => {
                 </div>
                 <h2>No results found</h2>
                 <p>
-                  We couldn't find any products matching "{query}". 
-                  Please try with different keywords or browse our categories.
+                  We couldn't find any products matching your filters. 
+                  Please try with different filter options or <button onClick={resetFilters} className="text-button">reset all filters</button>.
                 </p>
-                <Link to="/" className="btn btn-primary">
-                  Browse Categories
-                </Link>
               </div>
             )}
           </div>

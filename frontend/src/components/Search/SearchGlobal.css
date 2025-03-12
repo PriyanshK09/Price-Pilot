@@ -165,14 +165,15 @@
   gap: 8px;
   font-size: 0.9rem;
   font-weight: 600;
-  color: var(--color-text);
-  margin-bottom: var(--spacing-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: 10px;
   padding: 0;
 }
 
 .search-global-section {
   padding: var(--spacing-md);
   border-bottom: 1px solid var(--color-border);
+  margin-bottom: 16px;
 }
 
 .search-global-section:last-child {
@@ -208,8 +209,8 @@
 }
 
 .search-global-tag.recent {
-  background-color: transparent;
-  border: 1px dashed var(--color-border);
+  background-color: rgba(var(--color-primary-rgb), 0.1);
+  border-color: rgba(var(--color-primary-rgb), 0.2);
 }
 
 .search-global-tag.recent:hover {
@@ -425,4 +426,23 @@
     padding: 4px 10px;
     font-size: 0.8rem;
   }
+}
+
+.search-global-clear-history {
+  margin-left: auto;
+  background: none;
+  border: none;
+  padding: 2px;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s, color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-global-clear-history:hover {
+  opacity: 1;
+  color: var(--color-error);
 }

@@ -2,10 +2,23 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, TrendingUp, ArrowRight, Smartphone, Laptop, Headphones, Camera, Watch, Tv, Gamepad2 } from 'lucide-react';
 import './HomeSearch.css';
+import { addRecentSearch } from '../../utils/searchHistoryService';
+import { apiFetch } from '../../utils/apiFetch';
+import { capitalizeWords } from '../../utils/textUtils';
 
 const HomeSearch = () => {
   const [query, setQuery] = useState('');
   const [isVisible, setIsVisible] = useState(false);
+  const [trendingSearches, setTrendingSearches] = useState([
+    'iPhone 15 Pro',
+    'Samsung S24 Ultra',
+    'MacBook Air M3',
+    'Sony WH-1000XM5',
+    'Dyson V11',
+    'iPad Pro',
+    'OLED TV',
+    'PS5 Slim'
+  ]);
   const navigate = useNavigate();
   
   const popularCategories = [
@@ -18,18 +31,8 @@ const HomeSearch = () => {
     { name: 'Gaming', icon: <Gamepad2 size={18} /> }
   ];
   
-  const trendingSearches = [
-    'iPhone 15 Pro',
-    'Samsung S24 Ultra',
-    'MacBook Air M3',
-    'Sony WH-1000XM5',
-    'Dyson V11',
-    'iPad Pro',
-    'OLED TV',
-    'PS5 Slim'
-  ];
-  
   useEffect(() => {
+    // Animation effect for the search section
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -47,13 +50,48 @@ const HomeSearch = () => {
       if (element) observer.unobserve(element);
     };
   }, []);
+  
+  useEffect(() => {
+    // Fetch trending searches from API
+    const fetchTrendingSearches = async () => {
+      try {
+        const data = await apiFetch('/products/trending/searches');
+        if (data && data.trendingSearches && data.trendingSearches.length > 0) {
+          const capitalizedSearches = data.trendingSearches
+            .slice(0, 8)
+            .map(term => capitalizeWords(term));
+          setTrendingSearches(capitalizedSearches);
+        }
+      } catch (error) {
+        console.error('Error fetching trending searches:', error);
+        // Keep default trending searches on error
+      }
+    };
+    
+    fetchTrendingSearches();
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (query.trim()) {
-      // Use React Router's navigate instead of window.location for better performance
+      // Save the search query to recent searches
+      addRecentSearch(query.trim());
+      
+      // Navigate to search results
       navigate(`/search?q=${encodeURIComponent(query)}`);
     }
+  };
+
+  const handleTrendingSearchClick = (term) => {
+    // Save the trending term to recent searches
+    addRecentSearch(term);
+    
+    // Navigate to search results
+    navigate(`/search?q=${encodeURIComponent(term)}`);
+  };
+
+  const handleCategoryClick = (category) => {
+    navigate(`/categories/${category.toLowerCase()}`);
   };
 
   return (
@@ -97,14 +135,14 @@ const HomeSearch = () => {
               </div>
               <div className="home-search-category-tags">
                 {popularCategories.map((category, index) => (
-                  <a 
+                  <button 
                     key={index} 
-                    href={`/categories/${category.name.toLowerCase()}`} 
                     className="home-search-category"
+                    onClick={() => handleCategoryClick(category.name)}
                   >
                     {category.icon}
                     {category.name}
-                  </a>
+                  </button>
                 ))}
               </div>
             </div>
@@ -116,13 +154,13 @@ const HomeSearch = () => {
               </div>
               <div className="home-search-trending-tags">
                 {trendingSearches.map((term, index) => (
-                  <a 
-                    key={index} 
-                    href={`/search?q=${encodeURIComponent(term)}`} 
+                  <button 
+                    key={index}
                     className="home-search-trending-tag"
+                    onClick={() => handleTrendingSearchClick(term)}
                   >
                     {term}
-                  </a>
+                  </button>
                 ))}
               </div>
             </div>

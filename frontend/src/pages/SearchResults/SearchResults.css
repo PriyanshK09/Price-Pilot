@@ -553,6 +553,16 @@
   font-size: 1.05rem;
 }
 
+.search-results-loading.filter-loading {
+  padding: var(--spacing-md) 0;
+  min-height: auto;
+}
+
+.search-results-loading.filter-loading .loader {
+  width: 24px;
+  height: 24px;
+}
+
 /* Empty results */
 .search-results-empty {
   display: flex;
@@ -588,6 +598,12 @@
   margin-bottom: var(--spacing-md);
   color: var(--color-text-secondary);
   line-height: 1.6;
+  font-size: 1.05rem;
+}
+
+.search-results-empty .text-button {
+  font-size: inherit;
+  font-weight: 600;
 }
 
 .btn-primary {
@@ -628,6 +644,35 @@
 
 .btn-primary:hover::before {
   left: 100%;
+}
+
+/* Add these styles */
+.text-button {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all var(--transition-speed) ease;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
+  text-decoration-color: transparent;
+}
+
+.text-button:hover {
+  color: var(--color-accent);
+  text-decoration-color: var(--color-accent);
+}
+
+.text-button:focus {
+  outline: none;
+  text-decoration-color: var(--color-accent);
 }
 
 /* Responsive design */
@@ -874,4 +919,16 @@
     padding-top: 12px;
     padding-bottom: 12px;
   }
+}
+
+/* Hide number input arrows */
+.price-inputs input[type="number"]::-webkit-inner-spin-button,
+.price-inputs input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.price-inputs input[type="number"] {
+  -moz-appearance: textfield; /* Firefox */
+  appearance: textfield; /* Standard property */
 }

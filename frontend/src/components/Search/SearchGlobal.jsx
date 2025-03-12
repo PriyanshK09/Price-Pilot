@@ -1,31 +1,62 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Search, X, TrendingUp, History, ArrowRight, Zap } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Search, X, TrendingUp, History, ArrowRight, Zap, Trash2 } from 'lucide-react';
 import './SearchGlobal.css';
+import { getRecentSearches, addRecentSearch, clearRecentSearches } from '../../utils/searchHistoryService';
+import { apiFetch } from '../../utils/apiFetch';
+import { capitalizeWords } from '../../utils/textUtils';
 
 const SearchGlobal = () => {
   const [query, setQuery] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
-  const searchRef = useRef(null);
-  const navigate = useNavigate();
-  
-  // Sample trending searches
-  const trendingSearches = [
+  const [recentSearches, setRecentSearches] = useState([]);
+  const [trendingSearches, setTrendingSearches] = useState([
     'Sony WH-1000XM5', 
     'iPhone 15 Pro', 
     'Samsung QLED TV', 
     'Dyson V11',
     'MacBook Air M3'
-  ];
+  ]);
+  const searchRef = useRef(null);
+  const navigate = useNavigate();
+  const location = useLocation();
   
-  // Sample recent searches (in a real app this would come from localStorage or user data)
-  const recentSearches = [
-    'MacBook Air M2',
-    'Nike Air Zoom',
-    'PlayStation 5'
-  ];
+  // Load recent searches when component mounts
+  useEffect(() => {
+    const loadedSearches = getRecentSearches();
+    setRecentSearches(loadedSearches);
+  }, []);
+  
+  // Fetch trending searches from API
+  useEffect(() => {
+    const fetchTrendingSearches = async () => {
+      try {
+        const data = await apiFetch('/products/trending/searches');
+        if (data && data.trendingSearches && data.trendingSearches.length > 0) {
+          const capitalizedSearches = data.trendingSearches
+            .slice(0, 5)
+            .map(term => capitalizeWords(term));
+          setTrendingSearches(capitalizedSearches);
+        }
+      } catch (error) {
+        console.error('Error fetching trending searches:', error);
+        // Keep default trending searches on error
+      }
+    };
+    
+    fetchTrendingSearches();
+  }, []);
+  
+  // Reset search input when returning to home page
+  useEffect(() => {
+    if (location.pathname === '/') {
+      setQuery('');
+      setSearchResults([]);
+      setIsExpanded(false);
+    }
+  }, [location.pathname]);
 
   // Handle click outside to close expanded search
   useEffect(() => {
@@ -99,6 +130,13 @@ const SearchGlobal = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (query.trim()) {
+      // Save the search term to recent searches
+      addRecentSearch(query);
+      
+      // Refresh the recent searches list
+      setRecentSearches(getRecentSearches());
+      
+      // Navigate to search results
       navigate(`/search?q=${encodeURIComponent(query)}`);
       setIsExpanded(false);
     }
@@ -106,11 +144,30 @@ const SearchGlobal = () => {
 
   // Handle individual result click
   const handleResultClick = (id) => {
-    // You could navigate to product detail page
-    // navigate(`/product/${id}`);
-    // Or for now, just go to search results
-    navigate(`/search?q=${encodeURIComponent(query)}`);
+    // Save the search term to recent searches
+    addRecentSearch(query);
+    
+    // Refresh the recent searches list
+    setRecentSearches(getRecentSearches());
+    
+    // Navigate to product page or search results
+    navigate(`/product/${id}`);
     setIsExpanded(false);
+  };
+  
+  // Handle recent search term click
+  const handleRecentSearchClick = (term) => {
+    addRecentSearch(term);
+    setRecentSearches(getRecentSearches());
+    navigate(`/search?q=${encodeURIComponent(term)}`);
+    setIsExpanded(false);
+  };
+  
+  // Clear all recent searches
+  const handleClearRecentSearches = (e) => {
+    e.stopPropagation();
+    clearRecentSearches();
+    setRecentSearches([]);
   };
 
   return (
@@ -205,6 +262,8 @@ const SearchGlobal = () => {
                           className="search-global-tag" 
                           onClick={() => {
                             setQuery(term);
+                            addRecentSearch(term);
+                            setRecentSearches(getRecentSearches());
                             navigate(`/search?q=${encodeURIComponent(term)}`);
                             setIsExpanded(false);
                           }}
@@ -215,23 +274,27 @@ const SearchGlobal = () => {
                     </div>
                   </div>
                   
-                  {/* Recent searches */}
+                  {/* Recent searches - conditionally render based on if we have any */}
                   {recentSearches.length > 0 && (
                     <div className="search-global-section">
                       <h3 className="search-global-heading">
                         <History size={16} />
                         Recent Searches
+                        <button 
+                          className="search-global-clear-history"
+                          onClick={handleClearRecentSearches}
+                          aria-label="Clear recent searches"
+                          title="Clear recent searches"
+                        >
+                          <Trash2 size={14} />
+                        </button>
                       </h3>
                       <div className="search-global-tags">
                         {recentSearches.map((term, index) => (
                           <button 
                             key={index} 
                             className="search-global-tag recent" 
-                            onClick={() => {
-                              setQuery(term);
-                              navigate(`/search?q=${encodeURIComponent(term)}`);
-                              setIsExpanded(false);
-                            }}
+                            onClick={() => handleRecentSearchClick(term)}
                           >
                             {term}
                           </button>

@@ -17,8 +17,8 @@ mongoose.connect(config.mongodb.uri, {
 .then(() => {
   console.log('Connected to MongoDB');
   
-  // Start the refresh worker after successful DB connection
-  refreshWorker.start(10); // Check every 10 minutes
+  // Changed to check every 30 minutes
+  refreshWorker.start(30); 
 })
 .catch(error => {
   console.error('MongoDB connection error:', error);

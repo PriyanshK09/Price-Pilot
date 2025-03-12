@@ -47,7 +47,7 @@ const Hero = () => {
               <span className="hero-stat-label">Products tracked</span>
             </div>
             <div className="hero-stat">
-              <span className="hero-stat-value">$43M</span>
+              <span className="hero-stat-value">₹43M</span>
               <span className="hero-stat-label">Customer savings</span>
             </div>
             <div className="hero-stat">
@@ -92,16 +92,16 @@ const Hero = () => {
           <div className="hero-floating-elements">
             <div className="hero-price-tag hero-float-element">
               <div className="hero-price-tag-inner">
-                <span className="hero-price-old">$1,299</span>
-                <span className="hero-price-new">$999</span>
-                <span className="hero-price-save">Save $300</span>
+                <span className="hero-price-old">₹1,299</span>
+                <span className="hero-price-new">₹999</span>
+                <span className="hero-price-save">Save ₹300</span>
               </div>
             </div>
             <div className="hero-notification hero-float-element">
               <div className="hero-notification-icon"></div>
               <div className="hero-notification-content">
                 <div className="hero-notification-title">Price Drop Alert!</div>
-                <div className="hero-notification-text">Sony XM5 Headphones now $100 lower</div>
+                <div className="hero-notification-text">Sony XM5 Headphones now ₹100 lower</div>
               </div>
             </div>
           </div>
