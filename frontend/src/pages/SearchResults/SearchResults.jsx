@@ -153,6 +153,16 @@ const SearchResults = () => {
   const applyFilters = (sourceProducts, options) => {
     let filteredProducts = [...sourceProducts];
     
+    // Define featured stores
+    const featuredStores = [
+      'Amazon',
+      'Flipkart',
+      'Apple',
+      'Myntra',
+      'Samsung',
+      'Xiaomi'
+    ];
+    
     // Apply price range filter
     if (options.priceMin > 0) {
       filteredProducts = filteredProducts.filter(p => p.currentPrice >= options.priceMin);
@@ -189,17 +199,26 @@ const SearchResults = () => {
     }
     // For 'relevance' and 'newest', keep the original order
     
-    // Now reorder to prioritize Amazon and Flipkart products
-    const amazonProducts = filteredProducts.filter(p => p.store === 'Amazon');
-    const flipkartProducts = filteredProducts.filter(p => p.store === 'Flipkart');
-    const otherProducts = filteredProducts.filter(p => p.store !== 'Amazon' && p.store !== 'Flipkart');
+    // Group products by featured and non-featured stores
+    const featuredProducts = filteredProducts.filter(p => 
+      featuredStores.includes(p.store)
+    );
+    const otherProducts = filteredProducts.filter(p => 
+      !featuredStores.includes(p.store)
+    );
     
-    // Add featured tag to Amazon and Flipkart products
-    amazonProducts.forEach(p => p.featured = true);
-    flipkartProducts.forEach(p => p.featured = true);
+    // Add featured tag to products from featured stores
+    featuredProducts.forEach(p => p.featured = true);
     
-    // Combine the arrays with Amazon and Flipkart products first
-    filteredProducts = [...amazonProducts, ...flipkartProducts, ...otherProducts];
+    // Sort featured products to maintain specific store order
+    featuredProducts.sort((a, b) => {
+      const aIndex = featuredStores.indexOf(a.store);
+      const bIndex = featuredStores.indexOf(b.store);
+      return aIndex - bIndex;
+    });
+    
+    // Combine the arrays with featured products first
+    filteredProducts = [...featuredProducts, ...otherProducts];
 
     // Calculate pagination
     const totalFilteredResults = filteredProducts.length;

@@ -343,22 +343,34 @@
 }
 
 .product-card-badge.featured {
-  background-color: var(--color-primary);
+  background-color: var(--badge-color, var(--color-primary));
   color: white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   animation: badgePulse 2s infinite;
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
+/* Enhanced pulse animation */
 @keyframes badgePulse {
   0% {
     transform: scale(1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
   50% {
     transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   }
   100% {
     transform: scale(1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
+}
+
+/* Add hover effect */
+.product-card:hover .product-card-badge.featured {
+  transform: scale(1.1);
+  transition: transform 0.3s ease;
 }
 
 /* Adjust the badge position for list view */

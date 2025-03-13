@@ -34,13 +34,32 @@ const ProductCard = ({ product, viewMode = 'grid' }) => {
     }
   };
 
+  // Get badge color based on store
+  const getBadgeColor = (store) => {
+    const storeColors = {
+      'Amazon': '#FF9900',
+      'Flipkart': '#2874F0',
+      'Apple': '#000000',
+      'Myntra': '#FF3F6C',
+      'Samsung': '#1428A0',
+      'Xiaomi': '#FF6900'
+    };
+    return storeColors[store] || 'var(--color-primary)';
+  };
+
   return (
     <div className={`product-card ${viewMode}`}>
       <div className="product-card-inner">
         <div className="product-card-front">
           <div className="product-card-image">
             {featured && (
-              <div className="product-card-badge featured">
+              <div 
+                className="product-card-badge featured"
+                style={{ 
+                  backgroundColor: getBadgeColor(store),
+                  '--badge-color': getBadgeColor(store)
+                }}
+              >
                 FEATURED
               </div>
             )}

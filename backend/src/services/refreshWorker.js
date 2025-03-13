@@ -63,40 +63,44 @@ class RefreshWorker {
       
       // Process each stale result
       for (const result of staleResults) {
-        try {
-          console.log(`Refreshing search results for query: "${result.query}"`);
-          
-          // Extract options
-          const options = {
-            page: result.options.page || 1,
-            sort: result.options.sort || 'relevance',
-            priceMin: result.options.priceMin || null,
-            priceMax: result.options.priceMax || null,
-            categories: result.options.categories || [],
-            brands: result.options.brands || [],
-            discounted: result.options.discounted || false
-          };
-          
-          // Get fresh data from scraping service
-          const freshResults = await scrapingService.searchProducts(result.query, options);
-          
-          if (freshResults && freshResults.products && freshResults.products.length > 0) {
-            // Save the refreshed data
-            await dbService.saveSearchResults(result.query, options, freshResults);
-            console.log(`Successfully refreshed results for query: "${result.query}"`);
-          } else {
-            // If scraping fails, just update the timestamp to prevent constant retries
+        if (await this.shouldRefreshResult(result)) {
+          try {
+            console.log(`Refreshing search results for query: "${result.query}"`);
+            
+            // Extract options
+            const options = {
+              page: result.options.page || 1,
+              sort: result.options.sort || 'relevance',
+              priceMin: result.options.priceMin || null,
+              priceMax: result.options.priceMax || null,
+              categories: result.options.categories || [],
+              brands: result.options.brands || [],
+              discounted: result.options.discounted || false
+            };
+            
+            // Get fresh data from scraping service
+            const freshResults = await scrapingService.searchProducts(result.query, options);
+            
+            if (freshResults && freshResults.products && freshResults.products.length > 0) {
+              // Save the refreshed data
+              await dbService.saveSearchResults(result.query, options, freshResults);
+              console.log(`Successfully refreshed results for query: "${result.query}"`);
+            } else {
+              // If scraping fails, just update the timestamp to prevent constant retries
+              await dbService.updateRefreshTimestamp(result._id);
+              console.log(`Failed to get fresh data for query: "${result.query}", updated timestamp only`);
+            }
+            
+            // Add a small delay between requests to avoid rate limiting
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+          } catch (error) {
+            console.error(`Error refreshing search results for query "${result.query}":`, error);
+            // Update timestamp anyway to prevent constant retries of failing queries
             await dbService.updateRefreshTimestamp(result._id);
-            console.log(`Failed to get fresh data for query: "${result.query}", updated timestamp only`);
           }
-          
-          // Add a small delay between requests to avoid rate limiting
-          await new Promise(resolve => setTimeout(resolve, 2000));
-          
-        } catch (error) {
-          console.error(`Error refreshing search results for query "${result.query}":`, error);
-          // Update timestamp anyway to prevent constant retries of failing queries
-          await dbService.updateRefreshTimestamp(result._id);
+        } else {
+          console.log(`Skipping refresh for "${result.query}" - Not yet needed`);
         }
       }
       
@@ -106,6 +110,25 @@ class RefreshWorker {
       this.isRunning = false;
       console.log('Refresh worker completed');
     }
+  }
+
+  async shouldRefreshResult(result) {
+    // Don't refresh if last refresh was too recent
+    const minInterval = config.cache.minRefreshInterval * 1000;
+    if (Date.now() - result.lastRefreshed < minInterval) {
+      return false;
+    }
+
+    // Check if product prices are likely to change
+    const isHighValue = result.products.some(p => p.currentPrice > 10000);
+    const hasDiscounts = result.products.some(p => p.discountPercent > 0);
+    
+    // Refresh more frequently for discounted or high-value items
+    const refreshInterval = (isHighValue || hasDiscounts) ? 
+      config.cache.dbRefreshInterval * 0.5 : // 1 hour for important items
+      config.cache.dbRefreshInterval; // 2 hours for regular items
+
+    return Date.now() - result.lastRefreshed > refreshInterval * 1000;
   }
 }
 

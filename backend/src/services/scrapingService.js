@@ -1,11 +1,21 @@
 const axios = require('axios');
 const config = require('../config/config');
 const { ApiError } = require('../middleware/errorHandler');
+const RateLimit = require('bottleneck');
 
 class ScrapingService {
   constructor() {
     this.apiKey = config.scraperApi.apiKey;
     this.baseUrl = 'https://api.scraperapi.com/';
+    
+    // Rate limiter for scraping
+    this.limiter = new RateLimit({
+      minTime: 2000, // Minimum time between requests (2 seconds)
+      maxConcurrent: 1, // Only one request at a time
+      reservoir: 100, // Number of requests per hour
+      reservoirRefreshAmount: 100,
+      reservoirRefreshInterval: 60 * 60 * 1000 // 1 hour
+    });
   }
 
   /**
@@ -15,6 +25,12 @@ class ScrapingService {
    * @returns {Promise<Array>} - Array of product results
    */
   async searchProducts(query, options = {}) {
+    // Use the limiter for scraping requests
+    return this.limiter.schedule(() => this._searchProducts(query, options));
+  }
+
+  // Rename existing searchProducts to _searchProducts and make it private
+  async _searchProducts(query, options = {}) {
     try {
       const { page = 1, sort = 'relevance', priceMin, priceMax } = options;
       
@@ -47,8 +63,16 @@ class ScrapingService {
       console.log(`Scraping URL: ${googleShoppingUrl}`);
 
       try {
-        // Use JSON output format instead of HTML
-        const scraperUrl = `${this.baseUrl}?api_key=${this.apiKey}&url=${encodeURIComponent(googleShoppingUrl)}&country_code=in&device_type=desktop&output_format=json&autoparse=true`;
+        // Only request essential fields
+        const fields = [
+          'title',
+          'price',
+          'link',
+          'source',
+          'thumbnail'
+        ].join(',');
+
+        const scraperUrl = `${this.baseUrl}?api_key=${this.apiKey}&url=${encodeURIComponent(googleShoppingUrl)}&country_code=in&device_type=desktop&output_format=json&autoparse=true&fields=${fields}`;
         
         console.log(`Using ScraperAPI URL: ${scraperUrl}`);
         
