@@ -56,40 +56,41 @@ class DbService {
    */
   async saveSearchResults(query, options, results) {
     try {
-      const cacheKey = this.createCacheKey(query, options);
-      
-      // Try to find existing record first
-      const existingResult = await SearchResult.findOne(cacheKey);
-      
-      if (existingResult) {
-        // Update existing record
-        existingResult.products = results.products;
-        existingResult.pagination = results.pagination;
-        existingResult.lastRefreshed = new Date();
-        existingResult.updatedAt = new Date();
-        
-        await existingResult.save();
-        return existingResult;
-      }
-      
-      // Create new record
-      const searchResult = new SearchResult({
-        query: query.toLowerCase().trim(),
-        options: {
-          sort: options.sort || 'relevance',
-          page: options.page || 1,
-          priceMin: options.priceMin || null,
-          priceMax: options.priceMax || null, 
-          categories: options.categories || [],
-          brands: options.brands || [],
-          discounted: options.discounted || false
+      // Normalize the query to ensure consistent matching
+      const normalizedQuery = query.toLowerCase().trim();
+
+      // Use findOneAndUpdate with upsert
+      const searchResult = await SearchResult.findOneAndUpdate(
+        { 
+          // Match only by query, ignoring other options
+          query: normalizedQuery 
         },
-        products: results.products,
-        pagination: results.pagination,
-        lastRefreshed: new Date()
-      });
-      
-      await searchResult.save();
+        {
+          // Update all fields
+          $set: {
+            query: normalizedQuery,
+            options: {
+              sort: options.sort || 'relevance',
+              page: options.page || 1,
+              priceMin: options.priceMin || null,
+              priceMax: options.priceMax || null,
+              categories: options.categories || [],
+              brands: options.brands || [],
+              discounted: options.discounted || false
+            },
+            products: results.products,
+            pagination: results.pagination,
+            lastRefreshed: new Date(),
+            updatedAt: new Date()
+          }
+        },
+        {
+          upsert: true, // Create if doesn't exist
+          new: true, // Return the updated document
+          setDefaultsOnInsert: true // Apply schema defaults for new documents
+        }
+      );
+
       return searchResult;
     } catch (error) {
       console.error('Error saving search results to MongoDB:', error);

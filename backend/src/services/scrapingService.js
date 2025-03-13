@@ -120,6 +120,7 @@ class ScrapingService {
         return {
           id: item.docid || `gshop-${index}-${Date.now()}`,
           title: item.title || `Product for ${query}`,
+          productUrl: item.link,
           image: item.thumbnail || `https://source.unsplash.com/random/300x300/?${encodeURIComponent(query)}&sig=${index}`,
           currentPrice,
           originalPrice,

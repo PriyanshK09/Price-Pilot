@@ -189,6 +189,18 @@ const SearchResults = () => {
     }
     // For 'relevance' and 'newest', keep the original order
     
+    // Now reorder to prioritize Amazon and Flipkart products
+    const amazonProducts = filteredProducts.filter(p => p.store === 'Amazon');
+    const flipkartProducts = filteredProducts.filter(p => p.store === 'Flipkart');
+    const otherProducts = filteredProducts.filter(p => p.store !== 'Amazon' && p.store !== 'Flipkart');
+    
+    // Add featured tag to Amazon and Flipkart products
+    amazonProducts.forEach(p => p.featured = true);
+    flipkartProducts.forEach(p => p.featured = true);
+    
+    // Combine the arrays with Amazon and Flipkart products first
+    filteredProducts = [...amazonProducts, ...flipkartProducts, ...otherProducts];
+
     // Calculate pagination
     const totalFilteredResults = filteredProducts.length;
     const totalFilteredPages = Math.max(1, Math.ceil(totalFilteredResults / 12));

@@ -15,7 +15,9 @@ const ProductCard = ({ product, viewMode = 'grid' }) => {
     rating,
     reviewCount,
     inStock,
-    delivery
+    delivery,
+    productUrl, // This will contain the store's product link
+    featured
   } = product;
 
   const formatPrice = (price) => {
@@ -26,11 +28,22 @@ const ProductCard = ({ product, viewMode = 'grid' }) => {
     }).format(price);
   };
 
+  const handleBuyNow = () => {
+    if (productUrl) {
+      window.open(productUrl, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   return (
     <div className={`product-card ${viewMode}`}>
       <div className="product-card-inner">
         <div className="product-card-front">
           <div className="product-card-image">
+            {featured && (
+              <div className="product-card-badge featured">
+                FEATURED
+              </div>
+            )}
             <Link to={`/product/${id}`}>
               <img src={image} alt={title} loading="lazy" />
             </Link>
@@ -96,10 +109,10 @@ const ProductCard = ({ product, viewMode = 'grid' }) => {
             View Details
           </Link>
           <button 
-            onClick={() => window.open(product.productUrl || `https://pricepilot.com/compare/${id}`, '_blank')}
-            className="btn btn-outline btn-card"
+            onClick={handleBuyNow}
+            className="btn btn-accent btn-card"
           >
-            Compare Prices <ExternalLink size={14} />
+            Buy Now <ExternalLink size={14} />
           </button>
         </div>
       </div>

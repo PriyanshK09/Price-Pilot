@@ -192,13 +192,17 @@
 
 .btn-card {
   flex: 1;
-  padding: 8px 12px;
-  font-size: 0.85rem;
+  padding: 10px 16px;
+  font-size: 0.9rem;
+  font-weight: 500;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   text-decoration: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: all var(--transition-speed) ease;
 }
 
 .btn-outline {
@@ -211,6 +215,24 @@
   background-color: var(--color-primary-light);
   border-color: var(--color-primary);
   color: var(--color-primary);
+}
+
+/* Add new accent button style */
+.btn-accent {
+  background-color: var(--color-accent);
+  color: white;
+  border: none;
+  transition: all var(--transition-speed) ease;
+}
+
+.btn-accent:hover {
+  background: linear-gradient(to right, var(--color-accent), var(--color-primary));
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-accent:active {
+  transform: translateY(0);
 }
 
 /* List view styles */
@@ -306,4 +328,41 @@
   flex-direction: column;
   gap: 4px;
   margin-top: var(--spacing-xs);
+}
+
+.product-card-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 4px 8px;
+  border-radius: var(--border-radius);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  z-index: 2;
+}
+
+.product-card-badge.featured {
+  background-color: var(--color-primary);
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  animation: badgePulse 2s infinite;
+}
+
+@keyframes badgePulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Adjust the badge position for list view */
+.product-card.list .product-card-badge {
+  top: 16px;
+  left: 16px;
 }
