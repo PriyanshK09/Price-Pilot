@@ -3,6 +3,7 @@ const cors = require('cors');
 const morgan = require('morgan');
 const helmet = require('helmet');
 const compression = require('compression');
+const path = require('path');
 const productRoutes = require('./routes/productRoutes');
 const { errorHandler } = require('./middleware/errorHandler');
 const { rateLimiter } = require('./middleware/rateLimiter');
@@ -16,6 +17,9 @@ app.use(cors()); // Enable CORS
 app.use(express.json()); // Parse JSON bodies
 app.use(morgan('dev')); // Request logging
 app.use(rateLimiter); // Rate limiting
+
+// Add this line to serve static files
+app.use('/images', express.static(path.join(__dirname, '../public/images')));
 
 // Routes
 app.use('/api/products', productRoutes);

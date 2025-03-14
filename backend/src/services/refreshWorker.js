@@ -1,30 +1,19 @@
 const dbService = require('./dbService');
 const scrapingService = require('./scrapingService');
+const config = require('../config/config');
 
 class RefreshWorker {
   constructor() {
     this.isRunning = false;
-    this.interval = null;
+    this.interval = config.cache.staleCheckInterval * 1000; // Convert to milliseconds
   }
   
   /**
    * Start the refresh worker
-   * @param {number} intervalMinutes - How often to check for stale data (in minutes)
    */
-  start(intervalMinutes = 10) {
-    if (this.interval) {
-      clearInterval(this.interval);
-    }
-    
-    console.log(`Starting refresh worker with ${intervalMinutes} minute interval`);
-    
-    // Run immediately on start
-    this.refreshStaleData();
-    
-    // Then set up the interval
-    this.interval = setInterval(() => {
-      this.refreshStaleData();
-    }, intervalMinutes * 60 * 1000);
+  async start() {
+    console.log(`Starting refresh worker with ${this.interval / 60000} minute interval`);
+    setInterval(() => this.refreshStaleData(), this.interval);
   }
   
   /**
@@ -113,22 +102,16 @@ class RefreshWorker {
   }
 
   async shouldRefreshResult(result) {
-    // Don't refresh if last refresh was too recent
-    const minInterval = config.cache.minRefreshInterval * 1000;
-    if (Date.now() - result.lastRefreshed < minInterval) {
-      return false;
-    }
+    if (!result.lastRefreshed) return true;
 
-    // Check if product prices are likely to change
-    const isHighValue = result.products.some(p => p.currentPrice > 10000);
-    const hasDiscounts = result.products.some(p => p.discountPercent > 0);
+    const now = Date.now();
+    const age = now - new Date(result.lastRefreshed).getTime();
     
-    // Refresh more frequently for discounted or high-value items
-    const refreshInterval = (isHighValue || hasDiscounts) ? 
-      config.cache.dbRefreshInterval * 0.5 : // 1 hour for important items
-      config.cache.dbRefreshInterval; // 2 hours for regular items
+    // Check if data is older than maxStaleAge
+    if (age > config.cache.maxStaleAge * 1000) return true;
 
-    return Date.now() - result.lastRefreshed > refreshInterval * 1000;
+    // Check if minimum refresh interval has passed
+    return age > config.cache.minRefreshInterval * 1000;
   }
 }
 
