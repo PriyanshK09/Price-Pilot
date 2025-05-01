@@ -16,7 +16,7 @@ module.exports = {
   },
   cors: {
     origin: process.env.NODE_ENV === 'production' 
-      ? ['https://pricepilot.com', 'https://www.pricepilot.com'] 
+      ? ['https://pricepilotapp.netlify.app/', 'https://netlify.app'] 
       : ['http://localhost:3000', 'http://127.0.0.1:3000']
   },
   cache: {
