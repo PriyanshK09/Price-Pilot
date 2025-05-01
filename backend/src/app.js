@@ -13,7 +13,16 @@ const app = express();
 // Middleware
 app.use(helmet()); // Security headers
 app.use(compression()); // Compress responses
-app.use(cors()); // Enable CORS
+
+// Updated CORS configuration - explicitly allow your Netlify domain
+app.use(cors({
+  origin: ['https://pricepilotapp.netlify.app', 'http://localhost:3000'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  maxAge: 86400 // Cache preflight requests for 24 hours
+}));
+
 app.use(express.json()); // Parse JSON bodies
 app.use(morgan('dev')); // Request logging
 app.use(rateLimiter); // Rate limiting
