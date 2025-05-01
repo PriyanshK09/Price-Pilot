@@ -33,7 +33,7 @@ const ApiTest = () => {
       ) : error ? (
         <div style={{ color: 'red', padding: '10px', border: '1px solid red' }}>
           {error}
-          <p>Make sure your backend server is running at http://localhost:5000</p>
+          <p>Make sure your backend server is running at https://price-pilot.onrender.com</p>
         </div>
       ) : (
         <div style={{ color: 'green', padding: '10px', border: '1px solid green' }}>

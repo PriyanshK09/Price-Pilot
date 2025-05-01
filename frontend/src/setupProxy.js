@@ -4,7 +4,7 @@ module.exports = function(app) {
   app.use(
     ['/api', '/images'],  // Add /images to the proxy paths
     createProxyMiddleware({
-      target: 'http://localhost:5000',
+      target: 'https://price-pilot.onrender.com',
       changeOrigin: true,
       pathRewrite: {
         '^/api': '/api',

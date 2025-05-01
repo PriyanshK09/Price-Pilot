@@ -2,7 +2,7 @@
  * Utility function to fetch API data with fallback mechanisms
  */
 export const apiFetch = async (endpoint, options = {}) => {
-  const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+  const baseUrl = process.env.REACT_APP_API_URL || 'https://price-pilot.onrender.com';
   const apiEndpoint = endpoint.startsWith('/api') ? endpoint : `/api${endpoint}`;
   
   try {
